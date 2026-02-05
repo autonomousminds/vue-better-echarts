@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import dts from 'vite-plugin-dts';
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 import { resolve } from 'path';
 
 export default defineConfig({
@@ -10,6 +11,12 @@ export default defineConfig({
       insertTypesEntry: true,
       include: ['src/**/*.ts', 'src/**/*.vue'],
       exclude: ['src/**/*.test.ts', 'src/**/*.spec.ts']
+    }),
+    // Inject CSS into JS bundle so it auto-loads when components are imported
+    // This eliminates the need for consuming apps to manually import CSS
+    cssInjectedByJsPlugin({
+      // Use top-head to ensure our styles load early
+      topExecutionPriority: true
     })
   ],
   resolve: {
@@ -24,16 +31,13 @@ export default defineConfig({
       formats: ['es', 'umd'],
       fileName: (format) => `vue-better-echarts.${format === 'es' ? 'js' : 'umd.cjs'}`
     },
+    cssCodeSplit: false,
     rollupOptions: {
       external: ['vue', 'echarts'],
       output: {
         globals: {
           vue: 'Vue',
           echarts: 'echarts'
-        },
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === 'style.css') return 'vue-better-echarts.css';
-          return assetInfo.name || 'asset';
         }
       }
     },

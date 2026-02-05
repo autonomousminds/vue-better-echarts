@@ -44,21 +44,22 @@ const subtitleColor = computed(() => theme.value.colors['base-content-muted']);
 
 <style scoped>
 .chart-header {
-  margin: 0 0 4px 0;
+  margin: 0 0 12px 0;
 }
 
-.chart-title {
+/* Use parent chaining for higher specificity to beat Tailwind preflight */
+.chart-header .chart-title {
   font-size: 14px;
   font-weight: 700;
   margin: 0 0 4px 0;
   line-height: 1;
 }
 
-.chart-title.has-subtitle {
+.chart-header .chart-title.has-subtitle {
   margin-bottom: 2px;
 }
 
-.chart-subtitle {
+.chart-header .chart-subtitle {
   font-size: 13px;
   font-weight: 400;
   margin: 0;

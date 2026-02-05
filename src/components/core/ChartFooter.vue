@@ -127,7 +127,8 @@ const handleDownloadData = () => {
   opacity: 1;
 }
 
-.download-button {
+/* Use parent chaining for higher specificity to beat Tailwind preflight */
+.chart-footer .download-button {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -142,16 +143,16 @@ const handleDownloadData = () => {
   transition: opacity 0.2s ease;
 }
 
-.download-button:hover {
+.chart-footer .download-button:hover {
   opacity: 1;
 }
 
-.download-button:disabled {
+.chart-footer .download-button:disabled {
   opacity: 0.3;
   cursor: not-allowed;
 }
 
-.button-text {
+.chart-footer .button-text {
   white-space: nowrap;
 }
 

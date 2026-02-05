@@ -401,7 +401,14 @@ export function useChartConfig(
     const legendHeight = hasLegend && isLegendTop ? 15 : 0;
     const chartAreaPaddingTop = 10;
     const chartAreaPaddingBottom = 10;
-    const chartTop = legendHeight + chartAreaPaddingTop;
+
+    // Extra top padding when y-axis has a title (placed at top of axis via nameLocation: 'end')
+    const yAxisTitleRaw = props.yAxisTitle === true
+      ? formatTitle(Array.isArray(props.y) ? '' : (props.y || ''), formats.value.y)
+      : (props.yAxisTitle === false ? '' : (props.yAxisTitle || ''));
+    const yAxisTitlePaddingTop = yAxisTitleRaw ? 15 : 0;
+
+    const chartTop = legendHeight + chartAreaPaddingTop + yAxisTitlePaddingTop;
 
     // Check if there's a zoom slider at the bottom
     const hasZoomSlider = !!props.zoom && (
