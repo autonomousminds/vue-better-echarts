@@ -387,19 +387,9 @@ export function useChartConfig(
     const legend = props.legend ?? totalSeriesCount.value > 1;
 
     // Calculate chart dimensions
-    // Chart area height is computed but not currently used in grid calculation
-    void (props.chartAreaHeight || 180);
-    const hasTitle = !!props.title;
-    const hasSubtitle = !!props.subtitle;
+    // Title/subtitle are now rendered as HTML outside the chart via ChartHeader
+    // So we don't need to account for them in the chart grid
     const hasLegend = legend;
-
-    const titleFontSize = 15;
-    const subtitleFontSize = 13;
-    const titleBoxPadding = 6 * (hasSubtitle ? 1 : 0);
-    const titleBoxHeight =
-      (hasTitle ? titleFontSize : 0) +
-      (hasSubtitle ? subtitleFontSize : 0) +
-      titleBoxPadding * Math.max(hasTitle ? 1 : 0, hasSubtitle ? 1 : 0);
 
     // Legend position affects chart dimensions
     const legendPos = props.legendPosition || 'top';
@@ -409,12 +399,9 @@ export function useChartConfig(
     const isLegendRight = legendPos === 'right';
 
     const legendHeight = hasLegend && isLegendTop ? 15 : 0;
-    const legendPaddingTop = 7 * Math.max(hasTitle ? 1 : 0, hasSubtitle ? 1 : 0);
-    const legendTop = titleBoxHeight + legendPaddingTop;
-
     const chartAreaPaddingTop = 10;
     const chartAreaPaddingBottom = 10;
-    const chartTop = legendTop + legendHeight + chartAreaPaddingTop;
+    const chartTop = legendHeight + chartAreaPaddingTop;
 
     // Check if there's a zoom slider at the bottom
     const hasZoomSlider = !!props.zoom && (
@@ -527,12 +514,10 @@ export function useChartConfig(
     });
 
     return {
-      title: {
-        text: props.title,
-        subtext: props.subtitle
-      },
+      // Title/subtitle are rendered as HTML via ChartHeader component
+      // Not included in ECharts config to avoid duplication
       tooltip: tooltipConfig,
-      legend: getLegendConfig(legend, props.legendPosition, legendTop, hasZoomSlider),
+      legend: getLegendConfig(legend, props.legendPosition, 0, hasZoomSlider),
       grid: {
         left: props.leftPadding || leftLegendPadding,
         right: props.rightPadding || rightLegendPadding,

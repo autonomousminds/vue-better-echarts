@@ -216,7 +216,6 @@ export interface BaseChartProps {
   title?: string;
   titleIcon?: string;
   subtitle?: string;
-  description?: string;
   xAxisTitle?: string | boolean;
   yAxisTitle?: string | boolean;
   y2AxisTitle?: string | boolean;
@@ -267,6 +266,7 @@ export interface BaseChartProps {
   // Styling
   colorPalette?: ColorPaletteInput;
   seriesColors?: Record<string, ColorInput>;
+  backgroundColor?: string;
 
   // Interaction
   echartsOptions?: EChartsOption;
@@ -405,6 +405,7 @@ export interface FunnelChartProps {
   renderer?: ChartRenderer;
   downloadableData?: boolean;
   downloadableImage?: boolean;
+  backgroundColor?: string;
 }
 
 export interface HeatmapProps {
@@ -415,7 +416,6 @@ export interface HeatmapProps {
   title?: string;
   titleIcon?: string;
   subtitle?: string;
-  description?: string;
   legend?: boolean;
   height?: string;
   width?: string;
@@ -434,6 +434,7 @@ export interface HeatmapProps {
   renderer?: ChartRenderer;
   downloadableData?: boolean;
   downloadableImage?: boolean;
+  backgroundColor?: string;
 }
 
 export interface CalendarHeatmapProps {
@@ -453,6 +454,7 @@ export interface CalendarHeatmapProps {
   renderer?: ChartRenderer;
   downloadableData?: boolean;
   downloadableImage?: boolean;
+  backgroundColor?: string;
 }
 
 export interface SankeyDiagramProps {
@@ -475,6 +477,7 @@ export interface SankeyDiagramProps {
   renderer?: ChartRenderer;
   downloadableData?: boolean;
   downloadableImage?: boolean;
+  backgroundColor?: string;
 }
 
 export interface USMapProps {
@@ -495,6 +498,7 @@ export interface USMapProps {
   renderer?: ChartRenderer;
   downloadableData?: boolean;
   downloadableImage?: boolean;
+  backgroundColor?: string;
 }
 
 export interface AreaMapProps {
@@ -517,6 +521,7 @@ export interface AreaMapProps {
   renderer?: ChartRenderer;
   downloadableData?: boolean;
   downloadableImage?: boolean;
+  backgroundColor?: string;
 }
 
 export interface PointMapProps {
@@ -539,6 +544,7 @@ export interface PointMapProps {
   renderer?: ChartRenderer;
   downloadableData?: boolean;
   downloadableImage?: boolean;
+  backgroundColor?: string;
 }
 
 export interface BubbleMapProps extends PointMapProps {

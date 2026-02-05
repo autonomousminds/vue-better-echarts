@@ -94,41 +94,10 @@ const heatmapData = computed(() => {
 const chartConfig = computed<EChartsOption>(() => {
   const { xCategories, yCategories, data, min, max } = heatmapData.value;
 
-  // Calculate chart area
-  const hasTitle = !!props.title;
-  const hasSubtitle = !!props.subtitle;
-  const hasDescription = !!props.description;
-  const titleBoxHeight = (hasTitle ? 15 : 0) + (hasSubtitle ? 13 : 0) + (hasDescription ? 13 : 0) + (hasTitle || hasSubtitle ? 6 : 0);
-
-  // Build title text with optional icon
-  const titleText = props.titleIcon && props.title
-    ? `{icon|} ${props.title}`
-    : props.title;
-
-  // Build subtext with optional description
-  const subtext = props.description
-    ? (props.subtitle ? `${props.subtitle}\n${props.description}` : props.description)
-    : props.subtitle;
+  // Title/subtitle are now rendered as HTML via ChartHeader in EChartsBase
+  // So we don't include them in the ECharts config
 
   return {
-    title: {
-      text: titleText,
-      subtext: subtext,
-      textStyle: props.titleIcon ? {
-        rich: {
-          icon: {
-            backgroundColor: {
-              image: props.titleIcon
-            },
-            height: 18,
-            width: 18
-          }
-        }
-      } : undefined,
-      subtextStyle: hasDescription ? {
-        lineHeight: 16
-      } : undefined
-    },
     tooltip: {
       trigger: 'item' as const,
       position: 'top',
@@ -147,7 +116,7 @@ const chartConfig = computed<EChartsOption>(() => {
       left: '3%',
       right: '10%',
       bottom: '10%',
-      top: titleBoxHeight + 20,
+      top: 20,
       containLabel: true
     },
     xAxis: {
@@ -223,11 +192,14 @@ const hovering = ref(false);
 <template>
   <EChartsBase
     :config="chartConfig"
+    :title="props.title"
+    :subtitle="props.subtitle"
     :height="props.height"
     :width="props.width"
     :theme="activeAppearance"
     :renderer="props.renderer"
     :echarts-options="props.echartsOptions"
+    :background-color="props.backgroundColor"
     @click="emit('click', $event)"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"

@@ -185,6 +185,8 @@ const hovering = ref(false);
 <template>
   <EChartsBase
     :config="chartConfig"
+    :title="props.title"
+    :subtitle="props.subtitle"
     :height="props.height"
     :width="props.width"
     :theme="activeAppearance"
@@ -193,6 +195,7 @@ const hovering = ref(false);
     :series-colors="seriesColorsResolved as Record<string, string>"
     :echarts-options="props.echartsOptions"
     :series-options="props.seriesOptions"
+    :background-color="props.backgroundColor"
     @click="emit('click', $event)"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"

@@ -151,6 +151,7 @@ const hovering = ref(false);
     :theme="activeAppearance"
     :renderer="props.renderer"
     :echarts-options="props.echartsOptions"
+    :background-color="props.backgroundColor"
     @click="emit('click', $event)"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"

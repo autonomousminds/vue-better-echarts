@@ -4,6 +4,8 @@ import { Appearance, ChartRenderer } from '../../types';
 
 interface Props {
     config: EChartsOption;
+    title?: string;
+    subtitle?: string;
     height?: string;
     width?: string;
     theme?: Appearance;
@@ -15,6 +17,7 @@ interface Props {
     showAllXAxisLabels?: boolean;
     swapXY?: boolean;
     xAxisLabelOverflow?: 'break' | 'truncate';
+    backgroundColor?: string;
 }
 declare function updateChart(): void;
 declare function __VLS_template(): {
@@ -27,6 +30,7 @@ declare const __VLS_component: import('vue').DefineComponent<import('vue').Extra
     width: string;
     theme: string;
     renderer: string;
+    backgroundColor: string;
 }>>, {
     getChart: () => ECharts | null;
     resize: debounce.DebouncedFunction<() => void>;
@@ -40,6 +44,7 @@ declare const __VLS_component: import('vue').DefineComponent<import('vue').Extra
     width: string;
     theme: string;
     renderer: string;
+    backgroundColor: string;
 }>>> & Readonly<{
     onClick?: ((params: unknown) => any) | undefined;
     onInit?: ((chart: ECharts) => any) | undefined;
@@ -47,6 +52,7 @@ declare const __VLS_component: import('vue').DefineComponent<import('vue').Extra
 }>, {
     theme: Appearance;
     renderer: ChartRenderer;
+    backgroundColor: string;
     height: string;
     width: string;
 }, {}, {}, {}, string, import('vue').ComponentProvideOptions, true, {}, any>;

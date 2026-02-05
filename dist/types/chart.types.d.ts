@@ -171,7 +171,6 @@ export interface BaseChartProps {
     title?: string;
     titleIcon?: string;
     subtitle?: string;
-    description?: string;
     xAxisTitle?: string | boolean;
     yAxisTitle?: string | boolean;
     y2AxisTitle?: string | boolean;
@@ -212,6 +211,7 @@ export interface BaseChartProps {
     sort?: boolean;
     colorPalette?: ColorPaletteInput;
     seriesColors?: Record<string, ColorInput>;
+    backgroundColor?: string;
     echartsOptions?: EChartsOption;
     seriesOptions?: Record<string, unknown>;
     renderer?: ChartRenderer;
@@ -336,6 +336,7 @@ export interface FunnelChartProps {
     renderer?: ChartRenderer;
     downloadableData?: boolean;
     downloadableImage?: boolean;
+    backgroundColor?: string;
 }
 export interface HeatmapProps {
     data: DataRecord[];
@@ -345,7 +346,6 @@ export interface HeatmapProps {
     title?: string;
     titleIcon?: string;
     subtitle?: string;
-    description?: string;
     legend?: boolean;
     height?: string;
     width?: string;
@@ -364,6 +364,7 @@ export interface HeatmapProps {
     renderer?: ChartRenderer;
     downloadableData?: boolean;
     downloadableImage?: boolean;
+    backgroundColor?: string;
 }
 export interface CalendarHeatmapProps {
     data: DataRecord[];
@@ -382,6 +383,7 @@ export interface CalendarHeatmapProps {
     renderer?: ChartRenderer;
     downloadableData?: boolean;
     downloadableImage?: boolean;
+    backgroundColor?: string;
 }
 export interface SankeyDiagramProps {
     data: DataRecord[];
@@ -403,6 +405,7 @@ export interface SankeyDiagramProps {
     renderer?: ChartRenderer;
     downloadableData?: boolean;
     downloadableImage?: boolean;
+    backgroundColor?: string;
 }
 export interface USMapProps {
     data: DataRecord[];
@@ -422,6 +425,7 @@ export interface USMapProps {
     renderer?: ChartRenderer;
     downloadableData?: boolean;
     downloadableImage?: boolean;
+    backgroundColor?: string;
 }
 export interface AreaMapProps {
     data: DataRecord[];
@@ -443,6 +447,7 @@ export interface AreaMapProps {
     renderer?: ChartRenderer;
     downloadableData?: boolean;
     downloadableImage?: boolean;
+    backgroundColor?: string;
 }
 export interface PointMapProps {
     data: DataRecord[];
@@ -464,6 +469,7 @@ export interface PointMapProps {
     renderer?: ChartRenderer;
     downloadableData?: boolean;
     downloadableImage?: boolean;
+    backgroundColor?: string;
 }
 export interface BubbleMapProps extends PointMapProps {
     size: string;

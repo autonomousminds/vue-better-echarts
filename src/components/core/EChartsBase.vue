@@ -4,13 +4,14 @@
  * Handles chart initialization, resize, and theme switching
  */
 
-import { ref, watch, onMounted, onUnmounted, shallowRef } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, shallowRef } from 'vue';
 import type { EChartsOption, ECharts } from 'echarts';
 import * as echarts from 'echarts';
 import debounce from 'debounce';
 import type { Appearance, ChartRenderer } from '../../types';
 import { defaultThemeLight, defaultThemeDark } from '../../themes/echartsThemes';
 import { applySeriesColors, applyEchartsOptions, applySeriesOptions } from '../../composables/useECharts';
+import ChartHeader from './ChartHeader.vue';
 
 const ANIMATION_DURATION = 500;
 
@@ -25,6 +26,8 @@ function registerThemes(): void {
 
 interface Props {
   config: EChartsOption;
+  title?: string;
+  subtitle?: string;
   height?: string;
   width?: string;
   theme?: Appearance;
@@ -36,13 +39,15 @@ interface Props {
   showAllXAxisLabels?: boolean;
   swapXY?: boolean;
   xAxisLabelOverflow?: 'break' | 'truncate';
+  backgroundColor?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   height: '291px',
   width: '100%',
   theme: 'light',
-  renderer: 'canvas'
+  renderer: 'canvas',
+  backgroundColor: 'white'
 });
 
 const emit = defineEmits<{
@@ -55,6 +60,15 @@ const containerRef = ref<HTMLElement | null>(null);
 const chartInstance = shallowRef<ECharts | null>(null);
 const hovering = ref(false);
 const isFirstRender = ref(true);
+
+const containerStyle = computed(() => {
+  if (!props.backgroundColor) return {};
+  return {
+    backgroundColor: props.backgroundColor,
+    padding: '0.75rem',
+    borderRadius: '6px'
+  };
+});
 
 // Check if we should use SVG (iOS large canvas workaround)
 function shouldUseSvg(container: HTMLElement): boolean {
@@ -122,6 +136,11 @@ function updateChart(): void {
   // Skip update if no valid series data yet
   if (config.series.length === 0) {
     return;
+  }
+
+  // Make ECharts canvas transparent so the container background shows through
+  if (props.backgroundColor) {
+    config.backgroundColor = 'transparent';
   }
 
   // For first render, use notMerge to ensure clean initial state
@@ -253,9 +272,11 @@ defineExpose({
 <template>
   <div
     class="echarts-base-container"
+    :style="containerStyle"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
   >
+    <ChartHeader :title="props.title" :subtitle="props.subtitle" />
     <div
       ref="containerRef"
       class="echarts-base"
@@ -288,7 +309,7 @@ defineExpose({
   }
 
   .echarts-base-container {
-    padding: 0;
+    padding: 0 !important;
   }
 }
 </style>

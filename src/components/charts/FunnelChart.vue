@@ -149,11 +149,14 @@ const hovering = ref(false);
 <template>
   <EChartsBase
     :config="chartConfig"
+    :title="props.title"
+    :subtitle="props.subtitle"
     :height="props.height"
     :width="props.width"
     :theme="activeAppearance"
     :renderer="props.renderer"
     :echarts-options="props.echartsOptions"
+    :background-color="props.backgroundColor"
     @click="emit('click', $event)"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"

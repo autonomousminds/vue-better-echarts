@@ -172,9 +172,9 @@ configureThemes({
 | `title` | `string` | Chart title |
 | `titleIcon` | `string` | Image URL to display before the title |
 | `subtitle` | `string` | Chart subtitle |
-| `description` | `string` | Description text displayed below the subtitle |
 | `height` | `string` | Chart height (default: '291px') |
 | `width` | `string` | Chart width (default: '100%') |
+| `backgroundColor` | `string` | Background color for the chart container (default: `'white'`). Accepts any CSS color value. |
 | `legend` | `boolean` | Show legend (auto-enabled when multiple series) |
 | `legendPosition` | `'top' \| 'bottom' \| 'left' \| 'right'` | Legend position (default: 'top') |
 | `yFmt` | `string` | Y-axis value format |
@@ -265,8 +265,7 @@ configureThemes({
   value="visitors"
   title="Website Traffic"
   titleIcon="https://example.com/icon.svg"
-  subtitle="Peak Hours Analysis"
-  description="Shows visitor patterns across weekdays"
+  subtitle="Peak Hours Analysis - Shows visitor patterns across weekdays and highlights peak activity periods"
   :valueLabels="true"
   zeroDisplay="0"
   colorScale="blue"

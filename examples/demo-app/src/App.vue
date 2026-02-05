@@ -239,7 +239,9 @@ const barSettings = ref({
   stackType: 'grouped' as 'stacked' | 'grouped' | 'stacked100',
   fillOpacity: 1,
   labels: false,
-  swapXY: false
+  swapXY: false,
+  // Background
+  backgroundColor: '#ffffff'
 });
 
 const barZoomConfig = computed<ZoomConfig | boolean>(() => {
@@ -430,7 +432,7 @@ const scatterTooltipConfig = computed<TooltipConfig | boolean>(() => {
 const heatmapSettings = ref({
   // Display
   title: 'Website Traffic Heatmap',
-  subtitle: 'Peak Hours Analysis',
+  subtitle: 'Peak Hours Analysis - This subtitle tests long text wrapping behavior and should display properly across multiple lines without truncation. The heatmap visualizes website traffic patterns throughout the week, helping identify optimal times for marketing campaigns, server scaling decisions, and customer support staffing. Each cell represents the average number of visitors during that specific hour and day combination over the past 30 days.',
   legend: true,
   valueLabels: true,
   mobileValueLabels: false,
@@ -712,6 +714,7 @@ const sankeySettings = ref({
           x="day"
           :y="['value', 'trend']"
           title="100 Days Time Series"
+          subtitle="This is an extremely long subtitle that demonstrates how the chart handles text wrapping for extended descriptions. It should wrap nicely across multiple lines without being cut off or truncated in any way. The purpose of this test is to verify that our ECharts subtitle configuration properly sets the width and overflow properties so that long descriptive text can be displayed beneath the chart title. This kind of detailed description might be useful when presenting data to stakeholders who need additional context about what the visualization represents, the time period covered, data sources, or any caveats that should be considered when interpreting the results."
           height="380px"
           :zoom="lineZoomConfig"
           :toolbox="lineToolboxConfig"
@@ -878,6 +881,15 @@ const sankeySettings = ref({
             </label>
           </div>
 
+          <!-- Background -->
+          <div class="settings-group">
+            <h4>Background</h4>
+            <label>
+              Background Color
+              <input type="color" v-model="barSettings.backgroundColor" />
+            </label>
+          </div>
+
           <!-- Bar-specific -->
           <div class="settings-group">
             <h4>Bar Style</h4>
@@ -911,6 +923,7 @@ const sankeySettings = ref({
           y="sales"
           series="region"
           title="Monthly Sales by Region"
+          subtitle="Comparing North and South regional performance across the first half of the year with detailed monthly breakdowns. This comprehensive analysis shows how each region has performed relative to targets and historical benchmarks. The data reveals interesting seasonal patterns and highlights opportunities for growth in underperforming areas. Sales teams can use this visualization to identify trends and adjust their strategies accordingly for the upcoming quarters."
           yFmt="usd0k"
           height="350px"
           :type="barSettings.stackType"
@@ -927,6 +940,7 @@ const sankeySettings = ref({
           :fillOpacity="barSettings.fillOpacity"
           :labels="barSettings.labels"
           :swapXY="barSettings.swapXY"
+          :backgroundColor="barSettings.backgroundColor"
         />
       </section>
 
@@ -1317,7 +1331,7 @@ const sankeySettings = ref({
           x="age"
           y="income"
           title="Customer Demographics"
-          subtitle="Age vs Annual Income"
+          subtitle="Age vs Annual Income relationship analysis showing how customer spending correlates with demographic factors. This scatter plot reveals the distribution of our customer base across different age groups and income levels, enabling targeted marketing strategies and product positioning. Each point represents an individual customer, and the overall pattern helps identify key market segments for business development initiatives."
           :xAxisTitle="scatterSettings.xAxisTitle"
           :yAxisTitle="scatterSettings.yAxisTitle"
           yFmt="usd0k"
@@ -1825,6 +1839,14 @@ main {
 
 .settings-group input[type="range"] {
   width: 100px;
+}
+
+.settings-group input[type="color"] {
+  width: 50px;
+  height: 32px;
+  padding: 2px;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .settings-group select:focus,
