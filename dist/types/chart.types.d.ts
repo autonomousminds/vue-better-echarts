@@ -10,6 +10,145 @@ export type MarkerShape = 'circle' | 'rect' | 'roundRect' | 'triangle' | 'diamon
 export type StepPosition = 'start' | 'middle' | 'end';
 export type HandleMissing = 'gap' | 'connect' | 'zero';
 export type LabelPosition = 'top' | 'bottom' | 'left' | 'right' | 'inside' | 'outside';
+/**
+ * Zoom (DataZoom) types
+ */
+export type ZoomType = 'slider' | 'inside' | 'both';
+export type ZoomAxis = 'x' | 'y' | 'both';
+export interface ZoomConfig {
+    /** Zoom control type. Default: 'slider' */
+    type?: ZoomType;
+    /** Which axis to zoom. Default: 'x' */
+    axis?: ZoomAxis;
+    /** Start percentage (0-100). Default: 0 */
+    start?: number;
+    /** End percentage (0-100). Default: 100 */
+    end?: number;
+    /** Minimum span percentage. Default: 1 */
+    minSpan?: number;
+    /** Maximum span percentage. Default: 100 */
+    maxSpan?: number;
+    /** Show detail tooltip when zooming. Default: false */
+    showDetail?: boolean;
+    /** Slider height in pixels. Default: 30 */
+    height?: number;
+    /** Lock zoom range (prevent resizing). Default: false */
+    zoomLock?: boolean;
+    /** Update chart in realtime while zooming. Default: true */
+    realtime?: boolean;
+}
+export type ZoomProp = boolean | ZoomConfig;
+/**
+ * Toolbox types
+ */
+export type ToolboxPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+export interface SaveAsImageConfig {
+    /** Image type. Default: 'png' */
+    type?: 'png' | 'jpeg' | 'svg';
+    /** Pixel ratio for higher resolution. Default: 1 */
+    pixelRatio?: number;
+    /** Downloaded file name */
+    name?: string;
+}
+export interface DataViewConfig {
+    /** Make data view read-only. Default: false */
+    readOnly?: boolean;
+}
+export interface MagicTypeConfig {
+    /** Chart types available to switch between */
+    type: Array<'line' | 'bar' | 'stack'>;
+}
+export interface ToolboxConfig {
+    /** Position of the toolbox. Default: 'top-right' */
+    position?: ToolboxPosition;
+    /** Orientation. Default: 'horizontal' */
+    orient?: 'horizontal' | 'vertical';
+    /** Icon size in pixels. Default: 15 */
+    iconSize?: number;
+    /** Gap between icons in pixels. Default: 10 */
+    itemGap?: number;
+    /** Enable save as image feature */
+    saveAsImage?: boolean | SaveAsImageConfig;
+    /** Enable toolbox zoom feature */
+    dataZoom?: boolean;
+    /** Enable restore feature */
+    restore?: boolean;
+    /** Enable data view feature */
+    dataView?: boolean | DataViewConfig;
+    /** Enable magic type switching */
+    magicType?: boolean | MagicTypeConfig;
+}
+export type ToolboxProp = boolean | ToolboxConfig;
+/**
+ * Brush (Selection) types
+ */
+export type BrushType = 'rect' | 'polygon' | 'lineX' | 'lineY' | 'keep' | 'clear';
+export type BrushMode = 'single' | 'multiple';
+export interface OutOfBrushStyle {
+    /** Opacity for items outside brush selection (0-1) */
+    opacity?: number;
+}
+export interface BrushConfig {
+    /** Available brush types. Default: all types */
+    type?: BrushType | BrushType[];
+    /** Default brush type. Default: 'rect' */
+    defaultType?: BrushType;
+    /** Selection mode. Default: 'single' */
+    mode?: BrushMode;
+    /** Show brush buttons in toolbox. Default: true */
+    toolbox?: boolean;
+    /** Style for items outside brush selection */
+    outOfBrush?: OutOfBrushStyle;
+}
+export type BrushProp = boolean | BrushConfig;
+/**
+ * Animation types
+ */
+export type AnimationEasing = 'linear' | 'quadraticIn' | 'quadraticOut' | 'quadraticInOut' | 'cubicIn' | 'cubicOut' | 'cubicInOut' | 'quarticIn' | 'quarticOut' | 'quarticInOut' | 'quinticIn' | 'quinticOut' | 'quinticInOut' | 'sinusoidalIn' | 'sinusoidalOut' | 'sinusoidalInOut' | 'exponentialIn' | 'exponentialOut' | 'exponentialInOut' | 'circularIn' | 'circularOut' | 'circularInOut' | 'elasticIn' | 'elasticOut' | 'elasticInOut' | 'backIn' | 'backOut' | 'backInOut' | 'bounceIn' | 'bounceOut' | 'bounceInOut';
+export interface AnimationConfig {
+    /** Enable animation. Default: true */
+    enabled?: boolean;
+    /** Initial animation duration in ms. Default: 1000 */
+    duration?: number;
+    /** Update animation duration in ms. Default: 500 */
+    durationUpdate?: number;
+    /** Easing function. Default: 'cubicOut' */
+    easing?: AnimationEasing;
+    /** Animation delay in ms. Default: 0 */
+    delay?: number;
+    /** Disable animation if data count exceeds this. Default: 2000 */
+    threshold?: number;
+}
+export type AnimationProp = boolean | AnimationConfig;
+/**
+ * Tooltip types (Enhanced)
+ */
+export type TooltipTrigger = 'item' | 'axis' | 'none';
+export type AxisPointerType = 'line' | 'shadow' | 'cross' | 'none';
+export type TooltipOrder = 'asc' | 'desc' | 'none';
+export interface TooltipConfig {
+    /** Enable tooltip. Default: true */
+    enabled?: boolean;
+    /** Trigger type. Default: 'axis' for line/bar, 'item' for scatter */
+    trigger?: TooltipTrigger;
+    /** Axis pointer style. Default: 'shadow' */
+    axisPointer?: AxisPointerType;
+    /** Show series color marker in tooltip. Default: true */
+    showSeriesMarker?: boolean;
+    /** Confine tooltip within chart area. Default: true */
+    confine?: boolean;
+    /** Tooltip follows mouse movement. Default: false */
+    followMouse?: boolean;
+    /** Order of series in tooltip. Default: 'desc' */
+    order?: TooltipOrder;
+    /** Background color */
+    backgroundColor?: string;
+    /** Border color */
+    borderColor?: string;
+    /** Text color */
+    textColor?: string;
+}
+export type TooltipProp = boolean | TooltipConfig;
 export interface DataRecord {
     [key: string]: unknown;
 }
@@ -29,7 +168,9 @@ export interface BaseChartProps {
     yLabelFmt?: string;
     y2LabelFmt?: string;
     title?: string;
+    titleIcon?: string;
     subtitle?: string;
+    description?: string;
     xAxisTitle?: string | boolean;
     yAxisTitle?: string | boolean;
     y2AxisTitle?: string | boolean;
@@ -75,6 +216,11 @@ export interface BaseChartProps {
     connectGroup?: string;
     downloadableData?: boolean;
     downloadableImage?: boolean;
+    zoom?: ZoomProp;
+    toolbox?: ToolboxProp;
+    brush?: BrushProp;
+    animation?: AnimationProp;
+    tooltip?: TooltipProp;
     leftPadding?: string;
     rightPadding?: string;
 }
@@ -195,7 +341,9 @@ export interface HeatmapProps {
     y: string;
     value: string;
     title?: string;
+    titleIcon?: string;
     subtitle?: string;
+    description?: string;
     legend?: boolean;
     height?: string;
     width?: string;
@@ -207,6 +355,9 @@ export interface HeatmapProps {
     min?: number;
     max?: number;
     nullsZero?: boolean;
+    valueLabels?: boolean;
+    mobileValueLabels?: boolean;
+    zeroDisplay?: string;
     echartsOptions?: EChartsOption;
     renderer?: ChartRenderer;
     downloadableData?: boolean;

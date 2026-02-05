@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import {
   BarChart,
   LineChart,
@@ -10,11 +10,21 @@ import {
   SankeyDiagram,
   useThemeStores
 } from 'vue-better-echarts';
+import type {
+  ZoomConfig,
+  ToolboxConfig,
+  BrushConfig,
+  AnimationConfig,
+  TooltipConfig
+} from 'vue-better-echarts';
 
 // Initialize theme
 const { activeAppearance, cycleAppearance } = useThemeStores();
 
-// Sample data for charts
+// ============================================================================
+// Sample Data
+// ============================================================================
+
 const salesData = ref([
   { month: 'Jan', sales: 12500, orders: 145, region: 'North' },
   { month: 'Feb', sales: 15200, orders: 178, region: 'North' },
@@ -30,7 +40,6 @@ const salesData = ref([
   { month: 'Jun', sales: 19200, orders: 221, region: 'South' }
 ]);
 
-// Extended line data for zoom demos
 const lineData = ref([
   { date: '2024-01', revenue: 45000, cost: 32000 },
   { date: '2024-02', revenue: 52000, cost: 35000 },
@@ -46,7 +55,6 @@ const lineData = ref([
   { date: '2024-12', revenue: 115000, cost: 62000 }
 ]);
 
-// Large dataset for zoom demonstrations
 const timeSeriesData = ref(
   Array.from({ length: 100 }, (_, i) => ({
     day: `Day ${i + 1}`,
@@ -77,72 +85,6 @@ const scatterData = ref([
   { age: 39, income: 82000, spending: 2900 },
   { age: 46, income: 98000, spending: 3600 }
 ]);
-
-// Zoom configuration presets
-const sliderZoom = {
-  dataZoom: [
-    {
-      type: 'slider',
-      start: 0,
-      end: 100,
-      height: 25,
-      bottom: 10
-    }
-  ]
-};
-
-const insideZoom = {
-  dataZoom: [
-    {
-      type: 'inside',
-      start: 0,
-      end: 100
-    }
-  ]
-};
-
-const sliderAndInsideZoom = {
-  dataZoom: [
-    {
-      type: 'slider',
-      start: 0,
-      end: 50,
-      height: 25,
-      bottom: 10
-    },
-    {
-      type: 'inside'
-    }
-  ]
-};
-
-const toolboxWithZoom = {
-  toolbox: {
-    show: true,
-    feature: {
-      dataZoom: {
-        yAxisIndex: 'none',
-        title: { zoom: 'Zoom', back: 'Reset' }
-      },
-      restore: { title: 'Restore' },
-      saveAsImage: { title: 'Save' }
-    },
-    right: 20,
-    top: 10
-  },
-  dataZoom: [
-    { type: 'inside' }
-  ]
-};
-
-const xyAxisZoom = {
-  dataZoom: [
-    { type: 'slider', xAxisIndex: 0, start: 0, end: 100, bottom: 10, height: 20 },
-    { type: 'slider', yAxisIndex: 0, start: 0, end: 100, right: 10, width: 20 },
-    { type: 'inside', xAxisIndex: 0 },
-    { type: 'inside', yAxisIndex: 0 }
-  ]
-};
 
 const heatmapData = ref([
   { day: 'Mon', hour: '9am', value: 45 },
@@ -183,49 +125,646 @@ const sankeyData = ref([
   { source: 'Signup', target: 'Purchase', value: 100 },
   { source: 'Trial', target: 'Purchase', value: 350 }
 ]);
+
+// ============================================================================
+// Interactive Settings State - Line Chart
+// ============================================================================
+
+const lineSettings = ref({
+  // Zoom
+  zoomEnabled: true,
+  zoomType: 'both' as 'slider' | 'inside' | 'both',
+  zoomAxis: 'x' as 'x' | 'y' | 'both',
+  zoomStart: 0,
+  zoomEnd: 100,
+
+  // Toolbox
+  toolboxEnabled: true,
+  toolboxPosition: 'top-right' as 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right',
+  toolboxSaveAsImage: true,
+  toolboxDataZoom: true,
+  toolboxRestore: true,
+  toolboxMagicType: false,
+
+  // Animation
+  animationEnabled: true,
+  animationDuration: 1000,
+  animationEasing: 'cubicOut' as string,
+
+  // Tooltip
+  tooltipEnabled: true,
+  tooltipTrigger: 'axis' as 'item' | 'axis' | 'none',
+  tooltipAxisPointer: 'shadow' as 'line' | 'shadow' | 'cross' | 'none',
+
+  // Axis Labels
+  xAxisLabels: true,
+  yAxisLabels: true,
+  xAxisTitle: '',
+  yAxisTitle: '',
+
+  // Legend
+  legendEnabled: true
+});
+
+const lineZoomConfig = computed<ZoomConfig | boolean>(() => {
+  if (!lineSettings.value.zoomEnabled) return false;
+  return {
+    type: lineSettings.value.zoomType,
+    axis: lineSettings.value.zoomAxis,
+    start: lineSettings.value.zoomStart,
+    end: lineSettings.value.zoomEnd,
+    height: 25
+  };
+});
+
+const lineToolboxConfig = computed<ToolboxConfig | boolean>(() => {
+  if (!lineSettings.value.toolboxEnabled) return false;
+  return {
+    position: lineSettings.value.toolboxPosition,
+    saveAsImage: lineSettings.value.toolboxSaveAsImage,
+    dataZoom: lineSettings.value.toolboxDataZoom,
+    restore: lineSettings.value.toolboxRestore,
+    magicType: lineSettings.value.toolboxMagicType ? { type: ['line', 'bar'] as Array<'line' | 'bar'> } : undefined
+  };
+});
+
+const lineAnimationConfig = computed<AnimationConfig | boolean>(() => {
+  if (!lineSettings.value.animationEnabled) return false;
+  return {
+    duration: lineSettings.value.animationDuration,
+    easing: lineSettings.value.animationEasing as AnimationConfig['easing']
+  };
+});
+
+const lineTooltipConfig = computed<TooltipConfig | boolean>(() => {
+  if (!lineSettings.value.tooltipEnabled) return false;
+  return {
+    trigger: lineSettings.value.tooltipTrigger,
+    axisPointer: lineSettings.value.tooltipAxisPointer,
+    confine: true
+  };
+});
+
+// ============================================================================
+// Interactive Settings State - Scatter Plot
+// ============================================================================
+
+const scatterSettings = ref({
+  // Zoom
+  zoomEnabled: true,
+  zoomType: 'both' as 'slider' | 'inside' | 'both',
+  zoomAxis: 'both' as 'x' | 'y' | 'both',
+
+  // Brush
+  brushEnabled: true,
+  brushType: 'rect' as 'rect' | 'polygon' | 'lineX' | 'lineY',
+  brushOpacity: 0.2,
+
+  // Toolbox
+  toolboxEnabled: true,
+
+  // Animation
+  animationEnabled: true,
+  animationDuration: 1000
+});
+
+const scatterZoomConfig = computed<ZoomConfig | boolean>(() => {
+  if (!scatterSettings.value.zoomEnabled) return false;
+  return {
+    type: scatterSettings.value.zoomType,
+    axis: scatterSettings.value.zoomAxis,
+    height: 20
+  };
+});
+
+const scatterBrushConfig = computed<BrushConfig | boolean>(() => {
+  if (!scatterSettings.value.brushEnabled) return false;
+  return {
+    type: [scatterSettings.value.brushType],
+    outOfBrush: { opacity: scatterSettings.value.brushOpacity }
+  };
+});
+
+// ============================================================================
+// Interactive Settings State - Bar Chart
+// ============================================================================
+
+const barSettings = ref({
+  zoomEnabled: false,
+  zoomType: 'slider' as 'slider' | 'inside' | 'both',
+  toolboxEnabled: false,
+  animationEnabled: true,
+  animationDuration: 800,
+  animationEasing: 'cubicOut' as string,
+
+  // Axis Labels
+  xAxisLabels: true,
+  yAxisLabels: true
+});
+
+const barZoomConfig = computed<ZoomConfig | boolean>(() => {
+  if (!barSettings.value.zoomEnabled) return false;
+  return {
+    type: barSettings.value.zoomType,
+    axis: 'x',
+    height: 25
+  };
+});
+
+const barAnimationConfig = computed<AnimationConfig | boolean>(() => {
+  if (!barSettings.value.animationEnabled) return false;
+  return {
+    duration: barSettings.value.animationDuration,
+    easing: barSettings.value.animationEasing as AnimationConfig['easing']
+  };
+});
+
+// ============================================================================
+// Interactive Settings State - Area Chart
+// ============================================================================
+
+const areaSettings = ref({
+  zoomEnabled: true,
+  zoomType: 'both' as 'slider' | 'inside' | 'both',
+  zoomStart: 0,
+  zoomEnd: 60,
+  toolboxEnabled: true,
+  animationEnabled: true
+});
+
+const areaZoomConfig = computed<ZoomConfig | boolean>(() => {
+  if (!areaSettings.value.zoomEnabled) return false;
+  return {
+    type: areaSettings.value.zoomType,
+    axis: 'x',
+    start: areaSettings.value.zoomStart,
+    end: areaSettings.value.zoomEnd,
+    height: 25
+  };
+});
+
+// Easing options for dropdowns
+const easingOptions = [
+  'linear',
+  'cubicIn', 'cubicOut', 'cubicInOut',
+  'elasticIn', 'elasticOut', 'elasticInOut',
+  'bounceIn', 'bounceOut', 'bounceInOut',
+  'backIn', 'backOut', 'backInOut'
+];
 </script>
 
 <template>
   <div class="app" :class="activeAppearance">
     <header>
-      <h1>Vue ECharts Charts Demo</h1>
+      <h1>Vue Better ECharts - Interactive Features Demo</h1>
       <button @click="cycleAppearance" class="theme-toggle">
         {{ activeAppearance === 'light' ? '🌙 Dark' : '☀️ Light' }}
       </button>
     </header>
 
     <main>
-      <section class="chart-section">
-        <h2>Bar Chart - Sales by Month & Region</h2>
+      <!-- ================================================================== -->
+      <!-- LINE CHART WITH FULL SETTINGS PANEL -->
+      <!-- ================================================================== -->
+      <section class="chart-section with-settings">
+        <div class="section-header">
+          <h2>Line Chart - Interactive Settings</h2>
+          <span class="badge">All Features</span>
+        </div>
+
+        <div class="settings-panel">
+          <!-- Zoom Settings -->
+          <div class="settings-group">
+            <h4>Zoom</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="lineSettings.zoomEnabled" />
+              Enable Zoom
+            </label>
+            <div v-if="lineSettings.zoomEnabled" class="settings-row">
+              <label>
+                Type
+                <select v-model="lineSettings.zoomType">
+                  <option value="slider">Slider</option>
+                  <option value="inside">Mouse Wheel</option>
+                  <option value="both">Both</option>
+                </select>
+              </label>
+              <label>
+                Axis
+                <select v-model="lineSettings.zoomAxis">
+                  <option value="x">X Only</option>
+                  <option value="y">Y Only</option>
+                  <option value="both">Both</option>
+                </select>
+              </label>
+              <label>
+                Start %
+                <input type="number" v-model.number="lineSettings.zoomStart" min="0" max="100" />
+              </label>
+              <label>
+                End %
+                <input type="number" v-model.number="lineSettings.zoomEnd" min="0" max="100" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Toolbox Settings -->
+          <div class="settings-group">
+            <h4>Toolbox</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="lineSettings.toolboxEnabled" />
+              Enable Toolbox
+            </label>
+            <div v-if="lineSettings.toolboxEnabled" class="settings-row">
+              <label>
+                Position
+                <select v-model="lineSettings.toolboxPosition">
+                  <option value="top-left">Top Left</option>
+                  <option value="top-right">Top Right</option>
+                  <option value="bottom-left">Bottom Left</option>
+                  <option value="bottom-right">Bottom Right</option>
+                </select>
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" v-model="lineSettings.toolboxSaveAsImage" />
+                Save Image
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" v-model="lineSettings.toolboxDataZoom" />
+                Data Zoom
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" v-model="lineSettings.toolboxRestore" />
+                Restore
+              </label>
+              <label class="checkbox">
+                <input type="checkbox" v-model="lineSettings.toolboxMagicType" />
+                Magic Type
+              </label>
+            </div>
+          </div>
+
+          <!-- Animation Settings -->
+          <div class="settings-group">
+            <h4>Animation</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="lineSettings.animationEnabled" />
+              Enable Animation
+            </label>
+            <div v-if="lineSettings.animationEnabled" class="settings-row">
+              <label>
+                Duration (ms)
+                <input type="number" v-model.number="lineSettings.animationDuration" min="0" max="5000" step="100" />
+              </label>
+              <label>
+                Easing
+                <select v-model="lineSettings.animationEasing">
+                  <option v-for="easing in easingOptions" :key="easing" :value="easing">{{ easing }}</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tooltip Settings -->
+          <div class="settings-group">
+            <h4>Tooltip</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="lineSettings.tooltipEnabled" />
+              Enable Tooltip
+            </label>
+            <div v-if="lineSettings.tooltipEnabled" class="settings-row">
+              <label>
+                Trigger
+                <select v-model="lineSettings.tooltipTrigger">
+                  <option value="axis">Axis</option>
+                  <option value="item">Item</option>
+                  <option value="none">None</option>
+                </select>
+              </label>
+              <label>
+                Axis Pointer
+                <select v-model="lineSettings.tooltipAxisPointer">
+                  <option value="line">Line</option>
+                  <option value="shadow">Shadow</option>
+                  <option value="cross">Cross</option>
+                  <option value="none">None</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- Axis Labels Settings -->
+          <div class="settings-group">
+            <h4>Axis Labels</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="lineSettings.xAxisLabels" />
+              X-Axis Labels
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" v-model="lineSettings.yAxisLabels" />
+              Y-Axis Labels
+            </label>
+            <div class="settings-row">
+              <label>
+                X-Axis Title
+                <input type="text" v-model="lineSettings.xAxisTitle" placeholder="e.g. Day" />
+              </label>
+              <label>
+                Y-Axis Title
+                <input type="text" v-model="lineSettings.yAxisTitle" placeholder="e.g. Value" />
+              </label>
+            </div>
+          </div>
+
+          <!-- Legend Settings -->
+          <div class="settings-group">
+            <h4>Legend</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="lineSettings.legendEnabled" />
+              Show Legend
+            </label>
+          </div>
+        </div>
+
+        <LineChart
+          :data="timeSeriesData"
+          x="day"
+          :y="['value', 'trend']"
+          title="100 Days Time Series"
+          :markers="false"
+          height="380px"
+          :zoom="lineZoomConfig"
+          :toolbox="lineToolboxConfig"
+          :animation="lineAnimationConfig"
+          :tooltip="lineTooltipConfig"
+          :xAxisLabels="lineSettings.xAxisLabels"
+          :yAxisLabels="lineSettings.yAxisLabels"
+          :xAxisTitle="lineSettings.xAxisTitle || undefined"
+          :yAxisTitle="lineSettings.yAxisTitle || undefined"
+          :legend="lineSettings.legendEnabled"
+        />
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- SCATTER PLOT WITH SETTINGS PANEL -->
+      <!-- ================================================================== -->
+      <section class="chart-section with-settings">
+        <div class="section-header">
+          <h2>Scatter Plot - Zoom & Brush Selection</h2>
+          <span class="badge">Brush</span>
+        </div>
+
+        <div class="settings-panel">
+          <!-- Zoom Settings -->
+          <div class="settings-group">
+            <h4>Zoom</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="scatterSettings.zoomEnabled" />
+              Enable Zoom
+            </label>
+            <div v-if="scatterSettings.zoomEnabled" class="settings-row">
+              <label>
+                Type
+                <select v-model="scatterSettings.zoomType">
+                  <option value="slider">Slider</option>
+                  <option value="inside">Mouse Wheel</option>
+                  <option value="both">Both</option>
+                </select>
+              </label>
+              <label>
+                Axis
+                <select v-model="scatterSettings.zoomAxis">
+                  <option value="x">X Only</option>
+                  <option value="y">Y Only</option>
+                  <option value="both">Both</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- Brush Settings -->
+          <div class="settings-group">
+            <h4>Brush Selection</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="scatterSettings.brushEnabled" />
+              Enable Brush
+            </label>
+            <div v-if="scatterSettings.brushEnabled" class="settings-row">
+              <label>
+                Brush Type
+                <select v-model="scatterSettings.brushType">
+                  <option value="rect">Rectangle</option>
+                  <option value="polygon">Polygon</option>
+                  <option value="lineX">Line X</option>
+                  <option value="lineY">Line Y</option>
+                </select>
+              </label>
+              <label>
+                Unselected Opacity
+                <input type="range" v-model.number="scatterSettings.brushOpacity" min="0" max="1" step="0.1" />
+                {{ scatterSettings.brushOpacity }}
+              </label>
+            </div>
+          </div>
+
+          <!-- Toolbox -->
+          <div class="settings-group">
+            <h4>Toolbox</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="scatterSettings.toolboxEnabled" />
+              Enable Toolbox
+            </label>
+          </div>
+
+          <!-- Animation -->
+          <div class="settings-group">
+            <h4>Animation</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="scatterSettings.animationEnabled" />
+              Enable Animation
+            </label>
+            <div v-if="scatterSettings.animationEnabled" class="settings-row">
+              <label>
+                Duration (ms)
+                <input type="number" v-model.number="scatterSettings.animationDuration" min="0" max="5000" step="100" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <ScatterPlot
+          :data="scatterData"
+          x="age"
+          y="income"
+          title="Customer Demographics"
+          subtitle="Age vs Annual Income"
+          xAxisTitle="Age"
+          yAxisTitle="Annual Income"
+          yFmt="usd0k"
+          height="400px"
+          :zoom="scatterZoomConfig"
+          :brush="scatterBrushConfig"
+          :toolbox="scatterSettings.toolboxEnabled"
+          :animation="scatterSettings.animationEnabled ? { duration: scatterSettings.animationDuration } : false"
+        />
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- BAR CHART WITH SETTINGS PANEL -->
+      <!-- ================================================================== -->
+      <section class="chart-section with-settings">
+        <div class="section-header">
+          <h2>Bar Chart - Interactive Settings</h2>
+          <span class="badge">Animation</span>
+        </div>
+
+        <div class="settings-panel compact">
+          <div class="settings-group">
+            <h4>Zoom</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="barSettings.zoomEnabled" />
+              Enable Zoom
+            </label>
+            <label v-if="barSettings.zoomEnabled">
+              Type
+              <select v-model="barSettings.zoomType">
+                <option value="slider">Slider</option>
+                <option value="inside">Mouse Wheel</option>
+                <option value="both">Both</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="settings-group">
+            <h4>Toolbox</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="barSettings.toolboxEnabled" />
+              Enable Toolbox
+            </label>
+          </div>
+
+          <div class="settings-group">
+            <h4>Animation</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="barSettings.animationEnabled" />
+              Enable Animation
+            </label>
+            <div v-if="barSettings.animationEnabled" class="settings-row">
+              <label>
+                Duration
+                <input type="number" v-model.number="barSettings.animationDuration" min="0" max="5000" step="100" />
+              </label>
+              <label>
+                Easing
+                <select v-model="barSettings.animationEasing">
+                  <option v-for="easing in easingOptions" :key="easing" :value="easing">{{ easing }}</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h4>Axis Labels</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="barSettings.xAxisLabels" />
+              X-Axis Labels
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" v-model="barSettings.yAxisLabels" />
+              Y-Axis Labels
+            </label>
+          </div>
+        </div>
+
         <BarChart
           :data="salesData"
           x="month"
           y="sales"
           series="region"
-          title="Monthly Sales Performance"
-          subtitle="Comparing North vs South regions"
+          title="Monthly Sales by Region"
           yFmt="usd0k"
           :legend="true"
           height="350px"
+          :zoom="barZoomConfig"
+          :toolbox="barSettings.toolboxEnabled"
+          :animation="barAnimationConfig"
+          :xAxisLabels="barSettings.xAxisLabels"
+          :yAxisLabels="barSettings.yAxisLabels"
         />
       </section>
 
-      <section class="chart-section">
-        <h2>Stacked Bar Chart</h2>
-        <BarChart
-          :data="salesData"
-          x="month"
-          y="sales"
-          series="region"
-          title="Cumulative Sales by Region"
-          yFmt="usd0k"
-          :stacked="true"
-          height="350px"
+      <!-- ================================================================== -->
+      <!-- AREA CHART WITH SETTINGS PANEL -->
+      <!-- ================================================================== -->
+      <section class="chart-section with-settings">
+        <div class="section-header">
+          <h2>Area Chart - Zoom Settings</h2>
+          <span class="badge">Zoom</span>
+        </div>
+
+        <div class="settings-panel compact">
+          <div class="settings-group">
+            <h4>Zoom</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="areaSettings.zoomEnabled" />
+              Enable Zoom
+            </label>
+            <div v-if="areaSettings.zoomEnabled" class="settings-row">
+              <label>
+                Type
+                <select v-model="areaSettings.zoomType">
+                  <option value="slider">Slider</option>
+                  <option value="inside">Mouse Wheel</option>
+                  <option value="both">Both</option>
+                </select>
+              </label>
+              <label>
+                Start %
+                <input type="number" v-model.number="areaSettings.zoomStart" min="0" max="100" />
+              </label>
+              <label>
+                End %
+                <input type="number" v-model.number="areaSettings.zoomEnd" min="0" max="100" />
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h4>Toolbox</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="areaSettings.toolboxEnabled" />
+              Enable Toolbox
+            </label>
+          </div>
+
+          <div class="settings-group">
+            <h4>Animation</h4>
+            <label class="checkbox">
+              <input type="checkbox" v-model="areaSettings.animationEnabled" />
+              Enable Animation
+            </label>
+          </div>
+        </div>
+
+        <AreaChart
+          :data="timeSeriesData"
+          x="day"
+          :y="['value', 'trend']"
+          title="Stacked Area Chart"
+          height="380px"
+          :zoom="areaZoomConfig"
+          :toolbox="areaSettings.toolboxEnabled"
+          :animation="areaSettings.animationEnabled"
         />
       </section>
 
+      <!-- ================================================================== -->
+      <!-- STATIC EXAMPLES (No Settings Panel) -->
+      <!-- ================================================================== -->
+
       <section class="chart-section">
-        <h2>Line Chart - Basic (No Zoom)</h2>
+        <h2>Line Chart - Simple Usage</h2>
+        <p class="hint">Just use :zoom="true" for sensible defaults</p>
         <LineChart
           :data="lineData"
           x="date"
@@ -234,126 +773,26 @@ const sankeyData = ref([
           yFmt="usd0k"
           :markers="true"
           height="350px"
+          :zoom="true"
+          :toolbox="true"
         />
       </section>
 
       <section class="chart-section">
-        <h2>Line Chart - Slider Zoom</h2>
-        <p class="hint">Drag the slider below the chart to zoom</p>
-        <LineChart
-          :data="timeSeriesData"
-          x="day"
-          :y="['value', 'trend']"
-          title="100 Days of Data with Slider Zoom"
-          :markers="false"
-          height="350px"
-          :echartsOptions="sliderZoom"
-        />
-      </section>
-
-      <section class="chart-section">
-        <h2>Line Chart - Mouse Wheel Zoom</h2>
-        <p class="hint">Use mouse wheel to zoom, drag to pan</p>
-        <LineChart
-          :data="timeSeriesData"
-          x="day"
-          :y="['value', 'trend']"
-          title="Scroll to Zoom, Drag to Pan"
-          :markers="false"
-          height="350px"
-          :echartsOptions="insideZoom"
-        />
-      </section>
-
-      <section class="chart-section">
-        <h2>Line Chart - Slider + Mouse Zoom Combined</h2>
-        <p class="hint">Both slider and mouse wheel zoom enabled (starts at 50%)</p>
-        <LineChart
-          :data="timeSeriesData"
-          x="day"
-          :y="['value', 'trend']"
-          title="Combined Zoom Controls"
-          :markers="false"
-          height="380px"
-          :echartsOptions="sliderAndInsideZoom"
-        />
-      </section>
-
-      <section class="chart-section">
-        <h2>Line Chart - Toolbox with Zoom</h2>
-        <p class="hint">Click the zoom icon in toolbox, then drag to select zoom area</p>
-        <LineChart
-          :data="lineData"
-          x="date"
-          :y="['revenue', 'cost']"
-          title="Toolbox Zoom Controls"
-          yFmt="usd0k"
-          :markers="true"
-          height="350px"
-          :echartsOptions="toolboxWithZoom"
-        />
-      </section>
-
-      <section class="chart-section">
-        <h2>Area Chart with Zoom</h2>
-        <AreaChart
-          :data="timeSeriesData"
-          x="day"
-          :y="['value', 'trend']"
-          title="Area Chart - Slider Zoom"
-          :stacked="false"
-          height="380px"
-          :echartsOptions="sliderAndInsideZoom"
-        />
-      </section>
-
-      <section class="chart-section">
-        <h2>Scatter Plot - X & Y Axis Zoom</h2>
-        <p class="hint">Zoom on both axes with sliders and mouse wheel</p>
-        <ScatterPlot
-          :data="scatterData"
-          x="age"
-          y="income"
-          title="Customer Demographics"
-          subtitle="Age vs Annual Income (Zoomable)"
-          xAxisTitle="Age"
-          yAxisTitle="Annual Income"
-          yFmt="usd0k"
-          height="400px"
-          :echartsOptions="xyAxisZoom"
-        />
-      </section>
-
-      <section class="chart-section">
-        <h2>Bar Chart with Zoom</h2>
-        <p class="hint">Slider zoom works on bar charts too</p>
-        <BarChart
-          :data="salesData"
-          x="month"
-          y="sales"
-          series="region"
-          title="Sales with Zoom"
-          yFmt="usd0k"
-          :legend="true"
-          height="380px"
-          :echartsOptions="sliderZoom"
-        />
-      </section>
-
-      <section class="chart-section">
-        <h2>Heatmap - Activity by Day/Hour</h2>
+        <h2>Heatmap</h2>
         <Heatmap
           :data="heatmapData"
           x="hour"
           y="day"
           value="value"
           title="Website Traffic Heatmap"
+          subtitle="Peak Hours Analysis"
           height="300px"
         />
       </section>
 
       <section class="chart-section">
-        <h2>Funnel Chart - Sales Pipeline</h2>
+        <h2>Funnel Chart</h2>
         <FunnelChart
           :data="funnelData"
           name="stage"
@@ -365,7 +804,7 @@ const sankeyData = ref([
       </section>
 
       <section class="chart-section">
-        <h2>Sankey Diagram - User Flow</h2>
+        <h2>Sankey Diagram</h2>
         <SankeyDiagram
           :data="sankeyData"
           source="source"
@@ -384,6 +823,7 @@ const sankeyData = ref([
   min-height: 100vh;
   padding: 20px;
   transition: background-color 0.3s, color 0.3s;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .app.light {
@@ -407,7 +847,7 @@ header {
 }
 
 h1 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 600;
 }
 
@@ -446,6 +886,10 @@ main {
   transition: background-color 0.3s;
 }
 
+.chart-section.with-settings {
+  padding-top: 16px;
+}
+
 .light .chart-section {
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -454,6 +898,38 @@ main {
 .dark .chart-section {
   background: #16213e;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.badge {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.light .badge {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.dark .badge {
+  background: #1565c0;
+  color: #e3f2fd;
 }
 
 .chart-section h2 {
@@ -468,5 +944,110 @@ main {
   font-size: 0.85rem;
   opacity: 0.6;
   font-style: italic;
+}
+
+/* Settings Panel */
+.settings-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.settings-panel.compact {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.light .settings-panel {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.dark .settings-panel {
+  background: #0f1629;
+  border: 1px solid #2d3748;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-group h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.settings-group label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.settings-group label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.settings-group input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.settings-group select,
+.settings-group input[type="number"],
+.settings-group input[type="text"] {
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  min-width: 80px;
+}
+
+.settings-group input[type="text"] {
+  min-width: 120px;
+}
+
+.light .settings-group select,
+.light .settings-group input[type="number"],
+.light .settings-group input[type="text"] {
+  background: #fff;
+  border: 1px solid #ced4da;
+  color: #333;
+}
+
+.dark .settings-group select,
+.dark .settings-group input[type="number"],
+.dark .settings-group input[type="text"] {
+  background: #1a1a2e;
+  border: 1px solid #4a5568;
+  color: #eee;
+}
+
+.settings-group input[type="range"] {
+  width: 100px;
+}
+
+.settings-group select:focus,
+.settings-group input:focus {
+  outline: 2px solid #4299e1;
+  outline-offset: 1px;
 }
 </style>

@@ -97,12 +97,37 @@ const chartConfig = computed<EChartsOption>(() => {
   // Calculate chart area
   const hasTitle = !!props.title;
   const hasSubtitle = !!props.subtitle;
-  const titleBoxHeight = (hasTitle ? 15 : 0) + (hasSubtitle ? 13 : 0) + (hasTitle || hasSubtitle ? 6 : 0);
+  const hasDescription = !!props.description;
+  const titleBoxHeight = (hasTitle ? 15 : 0) + (hasSubtitle ? 13 : 0) + (hasDescription ? 13 : 0) + (hasTitle || hasSubtitle ? 6 : 0);
+
+  // Build title text with optional icon
+  const titleText = props.titleIcon && props.title
+    ? `{icon|} ${props.title}`
+    : props.title;
+
+  // Build subtext with optional description
+  const subtext = props.description
+    ? (props.subtitle ? `${props.subtitle}\n${props.description}` : props.description)
+    : props.subtitle;
 
   return {
     title: {
-      text: props.title,
-      subtext: props.subtitle
+      text: titleText,
+      subtext: subtext,
+      textStyle: props.titleIcon ? {
+        rich: {
+          icon: {
+            backgroundColor: {
+              image: props.titleIcon
+            },
+            height: 18,
+            width: 18
+          }
+        }
+      } : undefined,
+      subtextStyle: hasDescription ? {
+        lineHeight: 16
+      } : undefined
     },
     tooltip: {
       trigger: 'item' as const,

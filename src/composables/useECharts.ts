@@ -186,12 +186,23 @@ export function useECharts(options: UseEChartsOptions = {}): UseEChartsReturn {
 
   /**
    * Set chart options
+   * @param option - ECharts option object
+   * @param opts - Either a boolean (legacy notMerge) or SetOptionOpts object
    */
-  const setOption = (option: EChartsOption, notMerge = false): void => {
+  const setOption = (option: EChartsOption, opts: boolean | { notMerge?: boolean; replaceMerge?: string[] } = false): void => {
     if (!chartInstance.value) {
       console.warn('useECharts: Chart not initialized');
       return;
     }
+
+    // Convert legacy boolean to options object
+    const setOptionOpts = typeof opts === 'boolean'
+      ? { notMerge: opts }
+      : {
+          // Default to using replaceMerge for series to preserve toolbox state
+          replaceMerge: opts.replaceMerge ?? ['series'],
+          notMerge: opts.notMerge ?? false
+        };
 
     chartInstance.value.setOption(
       {
@@ -199,7 +210,7 @@ export function useECharts(options: UseEChartsOptions = {}): UseEChartsReturn {
         animationDuration,
         animationDurationUpdate: animationDuration
       },
-      notMerge
+      setOptionOpts
     );
   };
 

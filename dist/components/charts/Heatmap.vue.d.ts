@@ -5,6 +5,9 @@ declare const _default: import('vue').DefineComponent<import('vue').ExtractPropT
     width: string;
     legend: boolean;
     nullsZero: boolean;
+    valueLabels: boolean;
+    mobileValueLabels: boolean;
+    zeroDisplay: string;
     downloadableData: boolean;
     downloadableImage: boolean;
 }>>, {}, {}, {}, {}, import('vue').ComponentOptionsMixin, import('vue').ComponentOptionsMixin, {
@@ -14,6 +17,9 @@ declare const _default: import('vue').DefineComponent<import('vue').ExtractPropT
     width: string;
     legend: boolean;
     nullsZero: boolean;
+    valueLabels: boolean;
+    mobileValueLabels: boolean;
+    zeroDisplay: string;
     downloadableData: boolean;
     downloadableImage: boolean;
 }>>> & Readonly<{
@@ -25,6 +31,9 @@ declare const _default: import('vue').DefineComponent<import('vue').ExtractPropT
     downloadableData: boolean;
     downloadableImage: boolean;
     nullsZero: boolean;
+    valueLabels: boolean;
+    mobileValueLabels: boolean;
+    zeroDisplay: string;
 }, {}, {}, {}, string, import('vue').ComponentProvideOptions, true, {}, any>;
 export default _default;
 type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;

@@ -61,7 +61,12 @@ export declare function getSortedData(data: DataRecord[], column: string | strin
 /**
  * Main composable for chart configuration
  */
-export declare function useChartConfig(props: ChartConfigOptions): UseChartConfigReturn;
+interface ChartConfigExtraOptions {
+    chartType?: string;
+    stacked100?: boolean;
+    xType?: string;
+}
+export declare function useChartConfig(props: BaseChartProps, options?: ChartConfigExtraOptions): UseChartConfigReturn;
 /**
  * Generates series configuration from data
  */
@@ -73,3 +78,4 @@ export declare function getSeriesConfig(data: DataRecord[], x: string, y: string
     seriesOrder?: string[];
     seriesLabelFmt?: string;
 }): SeriesConfig[];
+export {};

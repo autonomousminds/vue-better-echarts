@@ -37,10 +37,7 @@ const {
   baseConfig,
   formats,
   unitSummaries
-} = useChartConfig({
-  ...props,
-  chartType: 'Box Plot'
-});
+} = useChartConfig(props, { chartType: 'Box Plot' });
 
 // Resolve colors
 const fillColorResolved = computed(() =>

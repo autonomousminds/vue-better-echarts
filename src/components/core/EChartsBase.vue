@@ -54,6 +54,7 @@ const emit = defineEmits<{
 const containerRef = ref<HTMLElement | null>(null);
 const chartInstance = shallowRef<ECharts | null>(null);
 const hovering = ref(false);
+const isFirstRender = ref(true);
 
 // Check if we should use SVG (iOS large canvas workaround)
 function shouldUseSvg(container: HTMLElement): boolean {
@@ -73,6 +74,9 @@ function initChart(): void {
   if (chartInstance.value) {
     chartInstance.value.dispose();
   }
+
+  // Reset first render flag when creating a new chart instance
+  isFirstRender.value = true;
 
   const useRenderer = shouldUseSvg(containerRef.value) ? 'svg' : props.renderer;
   const chart = echarts.init(containerRef.value, props.theme, {
@@ -99,14 +103,51 @@ function initChart(): void {
 function updateChart(): void {
   if (!chartInstance.value) return;
 
+  const config = { ...props.config };
+
+  // Debug logging
+  console.log('[EChartsBase] updateChart called:', {
+    xAxis: config.xAxis,
+    xAxisName: (config.xAxis as Record<string, unknown>)?.name,
+    legend: config.legend,
+    legendShow: (config.legend as Record<string, unknown>)?.show,
+    isFirstRender: isFirstRender.value
+  });
+
+  // Ensure series is a valid array with properly typed entries
+  // Filter out null/undefined entries AND entries without a valid 'type' property
+  if (Array.isArray(config.series)) {
+    config.series = config.series.filter((s): s is NonNullable<typeof s> => {
+      if (s == null) return false;
+      if (typeof s !== 'object') return false;
+      // ECharts requires each series to have a 'type' property
+      if (!('type' in s) || s.type == null) return false;
+      return true;
+    });
+  } else {
+    config.series = [];
+  }
+
+  // Skip update if no valid series data yet
+  if (config.series.length === 0) {
+    return;
+  }
+
+  // For first render, use notMerge to ensure clean initial state
+  // For subsequent updates, use notMerge: false to preserve toolbox internal
+  // state (required for restore/dataZoom to work)
+  const setOptionOpts = { notMerge: isFirstRender.value };
+
   chartInstance.value.setOption(
     {
-      ...props.config,
+      ...config,
       animationDuration: ANIMATION_DURATION,
       animationDurationUpdate: ANIMATION_DURATION
     },
-    true
+    setOptionOpts
   );
+
+  isFirstRender.value = false;
 
   if (props.seriesColors) {
     applySeriesColors(chartInstance.value, props.seriesColors);

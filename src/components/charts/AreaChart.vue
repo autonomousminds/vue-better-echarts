@@ -11,6 +11,7 @@ import EChartsBase from '../core/EChartsBase.vue';
 import ChartFooter from '../core/ChartFooter.vue';
 import { useChartConfig, getSeriesConfig } from '../../composables/useChartConfig';
 import { useThemeStores } from '../../composables/useTheme';
+import { useInteractiveFeatures } from '../../composables/useInteractiveFeatures';
 import { formatValue } from '../../utils/formatting';
 
 const props = withDefaults(defineProps<AreaChartProps>(), {
@@ -38,6 +39,20 @@ const emit = defineEmits<{
 
 const { activeAppearance, resolveColor, resolveColorPalette, resolveColorsObject } = useThemeStores();
 
+// Interactive features - use getters for reactivity
+const {
+  interactiveConfig,
+  tooltipBaseConfig
+} = useInteractiveFeatures({
+  zoom: () => props.zoom,
+  toolbox: () => props.toolbox,
+  brush: () => props.brush,
+  animation: () => props.animation,
+  tooltip: () => props.tooltip,
+  swapXY: () => false,
+  chartType: 'area'
+});
+
 // Process chart configuration
 const {
   processedData,
@@ -46,8 +61,7 @@ const {
   baseConfig,
   formats,
   unitSummaries
-} = useChartConfig({
-  ...props,
+} = useChartConfig(props, {
   chartType: 'Area Chart',
   stacked100: props.type === 'stacked100'
 });
@@ -180,6 +194,43 @@ const chartConfig = computed<EChartsOption>(() => {
         formatter: (value: number) => `${Math.round(value * 100)}%`
       };
     }
+  }
+
+  // Merge interactive features
+  const interactive = interactiveConfig.value;
+  if (interactive.dataZoom) {
+    config.dataZoom = interactive.dataZoom;
+  }
+  if (interactive.toolbox) {
+    config.toolbox = interactive.toolbox;
+  }
+  if (interactive.brush) {
+    config.brush = interactive.brush;
+  }
+  // Merge animation settings
+  if (interactive.animation !== undefined) {
+    config.animation = interactive.animation;
+  }
+  if (interactive.animationDuration !== undefined) {
+    config.animationDuration = interactive.animationDuration;
+  }
+  if (interactive.animationDurationUpdate !== undefined) {
+    config.animationDurationUpdate = interactive.animationDurationUpdate;
+  }
+  if (interactive.animationEasing !== undefined) {
+    config.animationEasing = interactive.animationEasing;
+  }
+  if (interactive.animationDelay !== undefined) {
+    config.animationDelay = interactive.animationDelay;
+  }
+  if (interactive.animationThreshold !== undefined) {
+    config.animationThreshold = interactive.animationThreshold;
+  }
+
+  // Merge tooltip config from interactive features
+  const tooltipBase = tooltipBaseConfig.value;
+  if (tooltipBase && Object.keys(tooltipBase).length > 0) {
+    config.tooltip = { ...(config.tooltip as Record<string, unknown>), ...tooltipBase } as EChartsOption['tooltip'];
   }
 
   return config;

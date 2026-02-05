@@ -10,8 +10,8 @@ import EChartsBase from '../core/EChartsBase.vue';
 import ChartFooter from '../core/ChartFooter.vue';
 import { useChartConfig, getSeriesConfig } from '../../composables/useChartConfig';
 import { useThemeStores } from '../../composables/useTheme';
+import { useInteractiveFeatures } from '../../composables/useInteractiveFeatures';
 import { useTooltip } from '../../composables/useTooltip';
-// formatValue and formatTitle imported via useTooltip
 
 const props = withDefaults(defineProps<ScatterPlotProps>(), {
   pointOpacity: 0.7,
@@ -33,6 +33,20 @@ const emit = defineEmits<{
 const { activeAppearance, resolveColor, resolveColorPalette, resolveColorsObject } = useThemeStores();
 const { scatterFormatter } = useTooltip();
 
+// Interactive features - use getters for reactivity
+const {
+  interactiveConfig,
+  tooltipBaseConfig
+} = useInteractiveFeatures({
+  zoom: () => props.zoom,
+  toolbox: () => props.toolbox,
+  brush: () => props.brush,
+  animation: () => props.animation,
+  tooltip: () => props.tooltip,
+  swapXY: () => false,
+  chartType: 'scatter'
+});
+
 // Process chart configuration
 const {
   processedData,
@@ -41,8 +55,7 @@ const {
   baseConfig,
   formats,
   unitSummaries: _unitSummaries
-} = useChartConfig({
-  ...props,
+} = useChartConfig(props, {
   chartType: 'Scatter Plot',
   xType: props.xType || 'value' // Default to value axis for scatter
 });
@@ -130,6 +143,50 @@ const chartConfig = computed<EChartsOption>(() => {
   // Ensure x-axis is value type for scatter
   if (!props.xType) {
     (config.xAxis as Record<string, unknown>).type = 'value';
+  }
+
+  // Merge interactive features
+  const interactive = interactiveConfig.value;
+  if (interactive.dataZoom) {
+    config.dataZoom = interactive.dataZoom;
+  }
+  if (interactive.toolbox) {
+    config.toolbox = interactive.toolbox;
+  }
+  if (interactive.brush) {
+    config.brush = interactive.brush;
+  }
+  // Merge animation settings
+  if (interactive.animation !== undefined) {
+    config.animation = interactive.animation;
+  }
+  if (interactive.animationDuration !== undefined) {
+    config.animationDuration = interactive.animationDuration;
+  }
+  if (interactive.animationDurationUpdate !== undefined) {
+    config.animationDurationUpdate = interactive.animationDurationUpdate;
+  }
+  if (interactive.animationEasing !== undefined) {
+    config.animationEasing = interactive.animationEasing;
+  }
+  if (interactive.animationDelay !== undefined) {
+    config.animationDelay = interactive.animationDelay;
+  }
+  if (interactive.animationThreshold !== undefined) {
+    config.animationThreshold = interactive.animationThreshold;
+  }
+
+  // Merge tooltip config from interactive features (but preserve custom formatter)
+  const tooltipBase = tooltipBaseConfig.value;
+  if (tooltipBase && Object.keys(tooltipBase).length > 0) {
+    const { show, confine, enterable, axisPointer, backgroundColor, borderColor, textStyle } = tooltipBase as Record<string, unknown>;
+    if (show !== undefined) (config.tooltip as Record<string, unknown>).show = show;
+    if (confine !== undefined) (config.tooltip as Record<string, unknown>).confine = confine;
+    if (enterable !== undefined) (config.tooltip as Record<string, unknown>).enterable = enterable;
+    if (axisPointer !== undefined) (config.tooltip as Record<string, unknown>).axisPointer = axisPointer;
+    if (backgroundColor !== undefined) (config.tooltip as Record<string, unknown>).backgroundColor = backgroundColor;
+    if (borderColor !== undefined) (config.tooltip as Record<string, unknown>).borderColor = borderColor;
+    if (textStyle !== undefined) (config.tooltip as Record<string, unknown>).textStyle = textStyle;
   }
 
   return config;

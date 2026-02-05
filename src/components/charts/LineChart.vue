@@ -11,6 +11,7 @@ import EChartsBase from '../core/EChartsBase.vue';
 import ChartFooter from '../core/ChartFooter.vue';
 import { useChartConfig, getSeriesConfig } from '../../composables/useChartConfig';
 import { useThemeStores } from '../../composables/useTheme';
+import { useInteractiveFeatures } from '../../composables/useInteractiveFeatures';
 import { formatValue } from '../../utils/formatting';
 
 const props = withDefaults(defineProps<LineChartProps>(), {
@@ -37,7 +38,22 @@ const emit = defineEmits<{
 
 const { activeAppearance, resolveColor, resolveColorPalette, resolveColorsObject } = useThemeStores();
 
+// Interactive features - use getters for reactivity
+const {
+  interactiveConfig,
+  tooltipBaseConfig
+} = useInteractiveFeatures({
+  zoom: () => props.zoom,
+  toolbox: () => props.toolbox,
+  brush: () => props.brush,
+  animation: () => props.animation,
+  tooltip: () => props.tooltip,
+  swapXY: () => false,
+  chartType: 'line'
+});
+
 // Process chart configuration
+// Note: We pass props directly (not spread) to maintain Vue reactivity
 const {
   processedData,
   columnSummary,
@@ -45,10 +61,7 @@ const {
   baseConfig,
   formats,
   unitSummaries
-} = useChartConfig({
-  ...props,
-  chartType: 'Line Chart'
-});
+} = useChartConfig(props, { chartType: 'Line Chart' });
 
 // Resolve colors
 const lineColorResolved = computed(() =>
@@ -164,6 +177,54 @@ const chartConfig = computed<EChartsOption>(() => {
   if (colorPaletteResolved.value) {
     config.color = colorPaletteResolved.value;
   }
+
+  // Merge interactive features
+  const interactive = interactiveConfig.value;
+  if (interactive.dataZoom) {
+    config.dataZoom = interactive.dataZoom;
+  }
+  if (interactive.toolbox) {
+    config.toolbox = interactive.toolbox;
+  }
+  if (interactive.brush) {
+    config.brush = interactive.brush;
+  }
+  // Merge animation settings
+  if (interactive.animation !== undefined) {
+    config.animation = interactive.animation;
+  }
+  if (interactive.animationDuration !== undefined) {
+    config.animationDuration = interactive.animationDuration;
+  }
+  if (interactive.animationDurationUpdate !== undefined) {
+    config.animationDurationUpdate = interactive.animationDurationUpdate;
+  }
+  if (interactive.animationEasing !== undefined) {
+    config.animationEasing = interactive.animationEasing;
+  }
+  if (interactive.animationDelay !== undefined) {
+    config.animationDelay = interactive.animationDelay;
+  }
+  if (interactive.animationThreshold !== undefined) {
+    config.animationThreshold = interactive.animationThreshold;
+  }
+
+  // Merge tooltip config from interactive features
+  const tooltipBase = tooltipBaseConfig.value;
+  if (tooltipBase && Object.keys(tooltipBase).length > 0) {
+    config.tooltip = { ...(config.tooltip as Record<string, unknown>), ...tooltipBase } as EChartsOption['tooltip'];
+  }
+
+  // Debug logging
+  console.log('[LineChart] Final config:', {
+    xAxis: config.xAxis,
+    xAxisName: (config.xAxis as Record<string, unknown>)?.name,
+    legend: config.legend,
+    legendShow: (config.legend as Record<string, unknown>)?.show,
+    seriesCount: Array.isArray(config.series) ? config.series.length : 0,
+    seriesNames: Array.isArray(config.series) ? (config.series as Array<{ name?: unknown }>).map((s) => String(s.name || '')) : [],
+    grid: config.grid
+  });
 
   return config;
 });

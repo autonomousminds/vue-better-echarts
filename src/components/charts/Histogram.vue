@@ -38,10 +38,7 @@ const {
   baseConfig,
   formats,
   unitSummaries
-} = useChartConfig({
-  ...props,
-  chartType: 'Histogram'
-});
+} = useChartConfig(props, { chartType: 'Histogram' });
 
 // Resolve colors
 const fillColorResolved = computed(() =>

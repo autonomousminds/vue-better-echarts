@@ -42,8 +42,7 @@ const {
   baseConfig,
   formats,
   unitSummaries: _unitSummaries
-} = useChartConfig({
-  ...props,
+} = useChartConfig(props, {
   chartType: 'Bubble Chart',
   xType: props.xType || 'value'
 });

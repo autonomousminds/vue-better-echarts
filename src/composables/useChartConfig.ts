@@ -173,7 +173,18 @@ export function getSortedData(
 /**
  * Main composable for chart configuration
  */
-export function useChartConfig(props: ChartConfigOptions): UseChartConfigReturn {
+interface ChartConfigExtraOptions {
+  chartType?: string;
+  stacked100?: boolean;
+  xType?: string;
+}
+
+export function useChartConfig(
+  props: BaseChartProps,
+  options: ChartConfigExtraOptions = {}
+): UseChartConfigReturn {
+  // Extract options (chartType and stacked100 reserved for future use)
+  const { xType: overrideXType } = options;
   // Process data
   const processedData = computed(() => {
     let data = [...(props.data || [])];
@@ -208,6 +219,7 @@ export function useChartConfig(props: ChartConfigOptions): UseChartConfigReturn 
 
   // X-axis type
   const xAxisType = computed<XAxisType>(() => {
+    if (overrideXType) return overrideXType as XAxisType;
     if (props.xType) return props.xType;
     if (!props.x) return 'category';
 
@@ -333,14 +345,28 @@ export function useChartConfig(props: ChartConfigOptions): UseChartConfigReturn 
     const chartBottom = chartAreaPaddingBottom;
 
     // Axis titles
-    // X-axis title computed but not currently used
-    void (props.xAxisTitle === true
+    const xAxisTitle = props.xAxisTitle === true
       ? formatTitle(props.x || '', formats.value.x)
-      : (props.xAxisTitle === false ? '' : (props.xAxisTitle || '')));
+      : (props.xAxisTitle === false ? '' : (props.xAxisTitle || ''));
 
     const yAxisTitle = props.yAxisTitle === true
       ? formatTitle(Array.isArray(props.y) ? '' : (props.y || ''), formats.value.y)
       : (props.yAxisTitle === false ? '' : (props.yAxisTitle || ''));
+
+    // Extra bottom padding needed when x-axis has a title
+    const xAxisTitlePadding = xAxisTitle ? 25 : 0;
+
+    // Debug logging
+    console.log('[useChartConfig] Config:', {
+      xAxisTitle,
+      yAxisTitle,
+      legend,
+      hasLegend,
+      totalSeriesCount: totalSeriesCount.value,
+      swapXY,
+      propsXAxisTitle: props.xAxisTitle,
+      propsYAxisTitle: props.yAxisTitle
+    });
 
     // Build axis config
     const xAxisConfig = swapXY
@@ -361,7 +387,7 @@ export function useChartConfig(props: ChartConfigOptions): UseChartConfigReturn 
           axisTick: { show: props.yTickMarks }
         }
       : {
-          type: xAxisType.value as 'category' | 'value' | 'time',
+          type: xAxisType.value,
           min: props.xMin,
           max: props.xMax,
           splitLine: { show: props.xGridlines },
@@ -373,7 +399,10 @@ export function useChartConfig(props: ChartConfigOptions): UseChartConfigReturn 
             formatter: xAxisType.value === 'time' || xAxisType.value === 'category'
               ? undefined
               : (value: number) => formatAxisValue(value, formats.value.x, unitSummaries.value.x)
-          }
+          },
+          name: xAxisTitle,
+          nameLocation: 'middle' as const,
+          nameGap: 30
         };
 
     const yAxisConfig = swapXY
@@ -430,13 +459,13 @@ export function useChartConfig(props: ChartConfigOptions): UseChartConfigReturn 
         show: legend,
         type: 'scroll' as const,
         top: legendTop,
-        padding: [0, 0, 0, 0] as [number, number, number, number],
-        data: [] as string[]
+        padding: [0, 0, 0, 0] as [number, number, number, number]
+        // Don't set data - let ECharts auto-detect from series names
       },
       grid: {
         left: props.leftPadding || (swapXY ? '1%' : '0.8%'),
         right: props.rightPadding || (swapXY ? '4%' : '3%'),
-        bottom: chartBottom,
+        bottom: chartBottom + xAxisTitlePadding,
         top: chartTop,
         containLabel: true
       },
