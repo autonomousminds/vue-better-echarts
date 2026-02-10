@@ -2,6 +2,14 @@ import type { PropDefinition } from '../../types/playground.types';
 import { baseChartPropDefs } from './baseChartProps';
 
 const waterfallSpecificProps: PropDefinition[] = [
+  {
+    name: 'waterfallType', label: 'Type', control: 'select', defaultValue: 'accumulative', group: 'Waterfall Style',
+    options: [
+      { label: 'Accumulative', value: 'accumulative' },
+      { label: 'Bridge', value: 'bridge' },
+    ],
+  },
+  { name: 'totalColumn', label: 'Total Column', control: 'text', defaultValue: 'isTotal', group: 'Waterfall Style', showWhen: (s) => s.waterfallType === 'bridge' },
   { name: 'showTotal', label: 'Show Total', control: 'checkbox', defaultValue: true, group: 'Waterfall Style' },
   { name: 'totalLabel', label: 'Total Label', control: 'text', defaultValue: 'Total', group: 'Waterfall Style', showWhen: (s) => s.showTotal === true },
   { name: 'labels', label: 'Show Labels', control: 'checkbox', defaultValue: false, group: 'Waterfall Style' },

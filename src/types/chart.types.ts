@@ -532,6 +532,8 @@ export interface SankeyDiagramProps {
 }
 
 export interface WaterfallChartProps extends BaseChartProps {
+  /** Waterfall type: 'accumulative' starts from 0 and accumulates; 'bridge' uses explicit start/end totals from data. Default: 'accumulative' */
+  waterfallType?: 'accumulative' | 'bridge';
   /** Color for positive/increase bars */
   positiveColor?: ColorInput;
   /** Color for negative/decrease bars */

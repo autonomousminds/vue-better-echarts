@@ -88,7 +88,7 @@ const data = [
 | `Heatmap` | 2D heatmap with color scales |
 | `CalendarHeatmap` | Calendar-based heatmap for time series |
 | `SankeyDiagram` | Flow visualization |
-| `WaterfallChart` | Cumulative positive/negative value breakdown |
+| `WaterfallChart` | Accumulative or bridge waterfall with positive/negative breakdown |
 
 ### Maps
 
@@ -362,17 +362,23 @@ configureThemes({
 
 ### Waterfall Chart Props
 
+Two waterfall types are supported via `waterfallType`:
+
+- **Accumulative** (default) — Each bar is an incremental change from zero. A running total builds up across all bars, with an optional auto-total at the end.
+- **Bridge** — Starts and ends with explicit total bars (full bars from zero), with incremental +/- changes floating in between. Requires a `totalColumn` to mark which rows are totals.
+
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `data` | `Array` | required | Data array |
 | `x` | `string` | required | Column for category labels |
 | `y` | `string` | required | Column for values (positive = increase, negative = decrease) |
+| `waterfallType` | `'accumulative' \| 'bridge'` | `'accumulative'` | Waterfall chart type |
+| `totalColumn` | `string` | - | Column name that marks rows as totals (boolean column). Required for bridge mode |
 | `positiveColor` | `ColorInput` | `'#4CAF50'` | Color for increase bars |
 | `negativeColor` | `ColorInput` | `'#F44336'` | Color for decrease bars |
 | `totalColor` | `ColorInput` | `'#2196F3'` | Color for total/subtotal bars |
-| `showTotal` | `boolean` | `true` | Auto-add a total bar at the end |
+| `showTotal` | `boolean` | `true` (accumulative), `false` (bridge) | Auto-add a total bar at the end |
 | `totalLabel` | `string` | `'Total'` | Label for the auto-total bar |
-| `totalColumn` | `string` | - | Column name that marks rows as totals (boolean column) |
 | `labels` | `boolean` | `false` | Show value labels on bars |
 | `labelPosition` | `'top' \| 'inside'` | `'top'` | Label position |
 | `connectorLines` | `boolean` | `true` | Show dashed lines connecting bar tops |
@@ -380,25 +386,26 @@ configureThemes({
 | `fillOpacity` | `number` | `1` | Bar fill opacity (0-1) |
 
 ```vue
-<!-- P&L waterfall -->
+<!-- Accumulative: P&L breakdown -->
 <WaterfallChart
-  :data="data"
+  :data="plData"
   x="category"
   y="amount"
-  title="Profit & Loss Waterfall"
+  title="Profit & Loss"
   yFmt="usd0k"
   :labels="true"
-  :showTotal="true"
   totalLabel="Net Income"
 />
 
-<!-- With explicit total rows in data -->
+<!-- Bridge: Q1 → changes → Q2 -->
 <WaterfallChart
-  :data="data"
+  :data="bridgeData"
   x="category"
   y="amount"
+  waterfallType="bridge"
   totalColumn="isTotal"
-  :showTotal="false"
+  title="Revenue Bridge Q1 → Q2"
+  yFmt="usd0k"
 />
 ```
 

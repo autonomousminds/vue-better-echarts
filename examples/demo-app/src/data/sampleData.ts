@@ -93,12 +93,12 @@ export const sankeyData = [
 ];
 
 export const waterfallData = [
-  { category: 'Revenue', amount: 120000 },
-  { category: 'COGS', amount: -45000 },
-  { category: 'Operating Expenses', amount: -30000 },
-  { category: 'Marketing', amount: -12000 },
-  { category: 'Other Income', amount: 5000 },
-  { category: 'Tax', amount: -9500 }
+  { category: 'Q1 Revenue', amount: 500000, isTotal: true },
+  { category: 'New Customers', amount: 120000, isTotal: false },
+  { category: 'Churn', amount: -45000, isTotal: false },
+  { category: 'Upsells', amount: 30000, isTotal: false },
+  { category: 'Price Changes', amount: -12000, isTotal: false },
+  { category: 'Q2 Revenue', amount: 593000, isTotal: true },
 ];
 
 export const boxPlotData = [

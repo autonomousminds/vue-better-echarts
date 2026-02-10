@@ -16,9 +16,9 @@ import { useInteractiveFeatures } from '../../composables/useInteractiveFeatures
 import { formatValue } from '../../utils/formatting';
 
 const props = withDefaults(defineProps<WaterfallChartProps>(), {
+  sort: false,
   fillOpacity: 1,
   outlineWidth: 0,
-  showTotal: true,
   totalLabel: 'Total',
   connectorLines: true,
   connectorLineType: 'dashed',
@@ -104,12 +104,13 @@ const waterfallData = computed(() => {
   for (const row of data) {
     const category = String(row[xCol] ?? '');
     const value = Number(row[yCol] ?? 0);
-    const isTotal = totalCol ? Boolean(row[totalCol]) : false;
+    const isTotal = props.waterfallType === 'bridge' && totalCol ? Boolean(row[totalCol]) : false;
 
     categories.push(category);
 
     if (isTotal) {
-      // Total bar: spans from 0 to running total
+      // Bridge mode: use actual data value, reset running total
+      runningTotal = value;
       assistValues.push(0);
       positiveValues.push(0);
       negativeValues.push(0);
@@ -136,8 +137,9 @@ const waterfallData = computed(() => {
     }
   }
 
-  // Auto-add total bar at the end
-  if (props.showTotal) {
+  // Auto-add total bar at the end (defaults: true for accumulative, false for bridge)
+  const shouldShowTotal = props.showTotal ?? props.waterfallType !== 'bridge';
+  if (shouldShowTotal) {
     categories.push(props.totalLabel || 'Total');
     assistValues.push(0);
     positiveValues.push(0);

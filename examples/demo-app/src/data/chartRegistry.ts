@@ -57,7 +57,7 @@ export const chartRegistry: ChartDefinition[] = [
   {
     id: 'waterfall-chart', name: 'Waterfall Chart', componentName: 'WaterfallChart',
     category: 'Standard Charts',
-    description: 'Cumulative positive/negative value breakdown',
+    description: 'Cumulative or bridge waterfall with positive/negative breakdown',
     dataBindings: { x: 'category', y: 'amount' },
     supportsReferences: false,
     props: waterfallChartProps,
