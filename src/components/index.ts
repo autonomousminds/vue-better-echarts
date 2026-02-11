@@ -13,3 +13,6 @@ export * from './maps';
 
 // Reference components
 export * from './references';
+
+// Value components
+export * from './values';

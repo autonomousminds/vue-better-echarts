@@ -6,7 +6,8 @@ import {
   BoxPlot, Histogram, FunnelChart, PieChart, Heatmap,
   CalendarHeatmap, SankeyDiagram, WaterfallChart,
   USMap, PointMap, BubbleMap,
-  DataTable, Column
+  DataTable, Column,
+  BigValue
 } from 'vue-better-echarts';
 
 const componentMap: Record<string, Component> = {
@@ -15,6 +16,7 @@ const componentMap: Record<string, Component> = {
   CalendarHeatmap, SankeyDiagram, WaterfallChart,
   USMap, PointMap, BubbleMap,
   DataTable,
+  BigValue,
 };
 
 const { currentChart, assembledProps, assembledColumnConfigs, currentData } = usePlaygroundState();

@@ -7,6 +7,7 @@ A Vue 3 charting library built on Apache ECharts and Leaflet.js with advanced fo
 ## Features
 
 - **18 Chart Types**: Bar, Line, Area, Scatter, Bubble, Box Plot, Histogram, Funnel, Pie, Heatmap, Calendar Heatmap, Sankey, Waterfall, US Map, Area Map, Point Map, Bubble Map
+- **BigValue Component**: KPI metric display with formatted value, sparkline chart, and comparison delta indicator
 - **Interactive Maps**: PointMap and BubbleMap use Leaflet.js with CartoDB tile basemaps — real zoomable maps down to street level (dynamically loaded, no bundle bloat)
 - **DataTable Component**: Full-featured data table with sorting, pagination, search, grouping, totals, column formatting, and rich content types (bars, deltas, sparklines, color scales)
 - **100+ Built-in Formats**: Currencies (USD, EUR, GBP, etc.), dates, numbers, percentages with automatic scaling (k, M, B, T)
@@ -109,6 +110,12 @@ const data = [
 |-----------|-------------|
 | `DataTable` | Full-featured data table with sorting, pagination, search, grouping, and rich column content types |
 | `Column` | Declarative column configuration for DataTable (renderless) |
+
+### Value Components
+
+| Component | Description |
+|-----------|-------------|
+| `BigValue` | KPI metric display with sparkline and comparison delta |
 
 ### Reference Components
 
@@ -655,6 +662,136 @@ Renders the cell value as raw HTML.
 </DataTable>
 ```
 
+## BigValue
+
+A KPI metric display component for showing a single highlighted value with an optional sparkline trend chart and comparison delta indicator.
+
+### Basic Usage
+
+```vue
+<script setup>
+import { BigValue } from 'vue-better-echarts';
+
+const data = [
+  { date: '2025-01-01', revenue: 48500, growth_pct: 0.124 },
+  { date: '2025-01-02', revenue: 49200, growth_pct: 0.124 },
+  // ... 30 days of data
+];
+</script>
+
+<template>
+  <BigValue
+    :data="data"
+    value="revenue"
+    title="Monthly Revenue"
+    fmt="usd0"
+  />
+</template>
+```
+
+### With Sparkline and Comparison
+
+```vue
+<BigValue
+  :data="data"
+  value="revenue"
+  comparison="growth_pct"
+  sparkline="date"
+  title="Revenue"
+  subtitle="Last 30 days"
+  fmt="usd0"
+  comparisonFmt="pct1"
+/>
+```
+
+This renders:
+- **Title** and optional **subtitle** (same style as chart headers)
+- **Large formatted value** from the first row of data
+- **Sparkline** showing the trend over time (line, area, or bar)
+- **Comparison delta** with directional arrow and color coding
+
+### BigValue Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `Array` | required | Data array |
+| `value` | `string` | required | Column name for the main display value |
+| `title` | `string` | auto | Title text (defaults to formatted column name) |
+| `subtitle` | `string` | - | Subtitle text below the title |
+| `fmt` | `string` | - | Format string for the main value (e.g. `'usd0'`, `'num2'`) |
+| `link` | `string` | - | URL to make the value clickable |
+| `minWidth` | `string` | `'18%'` | CSS min-width |
+| `maxWidth` | `string` | `'none'` | CSS max-width |
+
+#### Comparison Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `comparison` | `string` | - | Column name for comparison value |
+| `comparisonDelta` | `boolean` | `true` | Show as delta indicator (`true`) or plain value (`false`) |
+| `comparisonFmt` | `string` | - | Format string for comparison value |
+| `comparisonTitle` | `string` | auto | Label text (defaults to formatted column name) |
+| `downIsGood` | `boolean` | `false` | Invert colors (green for negative values) |
+| `neutralMin` | `number` | `0` | Minimum threshold for neutral range |
+| `neutralMax` | `number` | `0` | Maximum threshold for neutral range |
+
+#### Sparkline Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `sparkline` | `string` | - | Column name for sparkline date/x-axis |
+| `sparklineType` | `'line' \| 'area' \| 'bar'` | `'line'` | Sparkline chart type |
+| `sparklineColor` | `string` | - | Sparkline color override |
+| `sparklineYScale` | `boolean` | `false` | Scale sparkline y-axis to data range |
+| `sparklineValueFmt` | `string` | - | Format for sparkline tooltip values |
+| `sparklineDateFmt` | `string` | - | Format for sparkline tooltip dates |
+| `connectGroup` | `string` | - | Group name to link sparkline tooltips across multiple BigValues |
+
+### Examples
+
+```vue
+<!-- Simple KPI -->
+<BigValue :data="data" value="revenue" fmt="usd0" />
+
+<!-- With all features -->
+<BigValue
+  :data="data"
+  value="revenue"
+  comparison="growth_pct"
+  sparkline="date"
+  title="Monthly Revenue"
+  subtitle="Compared to previous period"
+  fmt="usd0"
+  comparisonFmt="pct1"
+  sparklineType="area"
+  sparklineColor="#3366cc"
+  :sparklineYScale="true"
+/>
+
+<!-- Down is good (e.g. costs, churn) -->
+<BigValue
+  :data="data"
+  value="churn_rate"
+  comparison="churn_change"
+  fmt="pct1"
+  :downIsGood="true"
+/>
+
+<!-- Plain comparison (no delta arrow) -->
+<BigValue
+  :data="data"
+  value="revenue"
+  comparison="target"
+  :comparisonDelta="false"
+  comparisonTitle="vs. target"
+  fmt="usd0"
+/>
+
+<!-- Linked sparklines (shared tooltip) -->
+<BigValue :data="data" value="revenue" sparkline="date" connectGroup="kpis" />
+<BigValue :data="data" value="orders" sparkline="date" connectGroup="kpis" />
+```
+
 ## Interactive Features
 
 Structured props for common ECharts interactive features. These provide a cleaner API than raw `echartsOptions` passthrough with full TypeScript support and sensible defaults.
@@ -996,6 +1133,10 @@ Both `PointMap` and `BubbleMap` accept a `basemap` prop for custom tile layers:
 
 - `DataTable` - Full-featured data table with sorting, pagination, search, grouping, totals, and rich content types
 - `Column` - Declarative column configuration (renderless, used as child of DataTable)
+
+### Value Components
+
+- `BigValue` - KPI metric display with formatted value, sparkline chart, and comparison delta indicator
 
 ## License
 

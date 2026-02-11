@@ -26,6 +26,7 @@ import SearchBar from './SearchBar.vue';
 import Pagination from './Pagination.vue';
 import TableFooter from './TableFooter.vue';
 import FullscreenButton from './FullscreenButton.vue';
+import ChartHeader from '../core/ChartHeader.vue';
 
 const props = withDefaults(defineProps<DataTableProps>(), {
   rows: 10,
@@ -387,10 +388,7 @@ function handleFullscreenKeydown(e: KeyboardEvent) {
   >
     <!-- Empty state handling -->
     <template v-if="!hasData && emptySet !== 'pass'">
-      <div v-if="title || subtitle" class="table-title-section">
-        <div v-if="title" class="table-title">{{ title }}</div>
-        <div v-if="subtitle" class="table-subtitle">{{ subtitle }}</div>
-      </div>
+      <ChartHeader :title="title" :subtitle="subtitle" />
       <div
         class="empty-state"
         :class="{ 'empty-error': emptySet === 'error', 'empty-warn': emptySet === 'warn' }"
@@ -402,10 +400,7 @@ function handleFullscreenKeydown(e: KeyboardEvent) {
     <!-- Table content -->
     <template v-else-if="hasData">
       <!-- Title -->
-      <div v-if="title || subtitle" class="table-title-section">
-        <div v-if="title" class="table-title">{{ title }}</div>
-        <div v-if="subtitle" class="table-subtitle">{{ subtitle }}</div>
-      </div>
+      <ChartHeader :title="title" :subtitle="subtitle" />
 
       <!-- Search -->
       <SearchBar v-if="search" v-model="searchValue" />
@@ -580,7 +575,7 @@ function handleFullscreenKeydown(e: KeyboardEvent) {
       </button>
       <div class="fullscreen-content">
         <div v-if="title || subtitle" class="table-title-section">
-          <div v-if="title" class="table-title">{{ title }}</div>
+          <div v-if="title" class="table-title" :class="{ 'has-subtitle': !!subtitle }">{{ title }}</div>
           <div v-if="subtitle" class="table-subtitle">{{ subtitle }}</div>
         </div>
         <div class="scrollbox" :style="{ backgroundColor: backgroundColor || undefined }">
@@ -641,19 +636,6 @@ function handleFullscreenKeydown(e: KeyboardEvent) {
   margin-bottom: 20px;
 }
 
-.table-title-section {
-  margin-bottom: 6px;
-}
-
-.table-title {
-  font-weight: 600;
-  font-size: 1.1em;
-}
-
-.table-subtitle {
-  font-size: 0.9em;
-  color: var(--table-muted-color, #999);
-}
 
 .scrollbox {
   width: 100%;

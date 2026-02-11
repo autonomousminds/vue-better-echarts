@@ -16,3 +16,4 @@ export { areaMapProps } from './areaMap';
 export { pointMapProps } from './pointMap';
 export { bubbleMapProps } from './bubbleMap';
 export { dataTableProps } from './dataTable';
+export { bigValueProps } from './bigValue';

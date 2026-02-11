@@ -48,7 +48,7 @@ export interface ChartDefinition {
   id: string;
   name: string;
   componentName: string;
-  category: 'Standard Charts' | 'Statistical' | 'Part-to-Whole' | 'Relational' | 'Maps' | 'Tables';
+  category: 'Standard Charts' | 'Statistical' | 'Part-to-Whole' | 'Relational' | 'Maps' | 'Tables' | 'Values';
   description: string;
   dataBindings: Record<string, string | string[]>;
   supportsReferences: boolean;

@@ -226,6 +226,21 @@ export const tableData = [
   { name: 'Tina Walker', department: 'Sales', region: 'East', salary: 110000, growth_pct: 0.16, tenure: 7, rating: 4.5 },
 ];
 
+export const bigValueData = (() => {
+  const rows = [];
+  const baseDate = new Date(2025, 0, 1);
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(baseDate);
+    date.setDate(date.getDate() + i);
+    rows.push({
+      date: date.toISOString().split('T')[0],
+      revenue: Math.round(45000 + Math.random() * 10000 + Math.sin(i / 5) * 3000),
+      growth_pct: 0.124,
+    });
+  }
+  return rows;
+})();
+
 export const sampleDatasets: Record<string, Record<string, unknown>[]> = {
   sales: salesData,
   timeSeries: timeSeriesData,
@@ -244,4 +259,5 @@ export const sampleDatasets: Record<string, Record<string, unknown>[]> = {
   pointMap: countryData,
   bubbleMap: countryData,
   table: tableData,
+  bigValue: bigValueData,
 };

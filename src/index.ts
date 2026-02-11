@@ -82,3 +82,10 @@ export {
   ReferenceArea,
   ReferencePoint
 } from './components/references';
+
+// ============================================================================
+// Value Components
+// ============================================================================
+export {
+  BigValue
+} from './components/values';

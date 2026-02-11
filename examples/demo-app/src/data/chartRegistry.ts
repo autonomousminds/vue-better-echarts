@@ -7,6 +7,7 @@ import {
   waterfallChartProps, usMapProps,
   pointMapProps, bubbleMapProps,
   dataTableProps,
+  bigValueProps,
 } from './propDefinitions';
 
 export const chartRegistry: ChartDefinition[] = [
@@ -163,6 +164,15 @@ export const chartRegistry: ChartDefinition[] = [
     props: dataTableProps,
     sampleDataKey: 'table',
   },
+  {
+    id: 'big-value', name: 'Big Value', componentName: 'BigValue',
+    category: 'Values',
+    description: 'KPI metric display with optional sparkline and comparison delta',
+    dataBindings: { value: 'revenue', comparison: 'growth_pct', sparkline: 'date' },
+    supportsReferences: false,
+    props: bigValueProps,
+    sampleDataKey: 'bigValue',
+  },
 ];
 
 export const chartCategories = [
@@ -172,4 +182,5 @@ export const chartCategories = [
   'Relational',
   'Maps',
   'Tables',
+  'Values',
 ] as const;
