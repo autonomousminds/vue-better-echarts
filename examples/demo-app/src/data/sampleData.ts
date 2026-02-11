@@ -180,27 +180,27 @@ export const usMapData = [
   { state: 'Wyoming', population: 577 }
 ];
 
-export const cityData = [
-  { city: 'New York', lat: 40.7128, long: -74.006, gdp: 1700, population: 8336 },
-  { city: 'London', lat: 51.5074, long: -0.1278, gdp: 950, population: 8982 },
-  { city: 'Tokyo', lat: 35.6762, long: 139.6503, gdp: 1920, population: 13960 },
-  { city: 'Paris', lat: 48.8566, long: 2.3522, gdp: 850, population: 2161 },
-  { city: 'Shanghai', lat: 31.2304, long: 121.4737, gdp: 680, population: 24870 },
-  { city: 'Singapore', lat: 1.3521, long: 103.8198, gdp: 397, population: 5686 },
-  { city: 'Dubai', lat: 25.2048, long: 55.2708, gdp: 312, population: 3490 },
-  { city: 'Sydney', lat: -33.8688, long: 151.2093, gdp: 440, population: 5312 },
-  { city: 'Mumbai', lat: 19.076, long: 72.8777, gdp: 310, population: 20411 },
-  { city: 'Sao Paulo', lat: -23.5505, long: -46.6333, gdp: 450, population: 12325 },
-  { city: 'Toronto', lat: 43.6532, long: -79.3832, gdp: 380, population: 2794 },
-  { city: 'Seoul', lat: 37.5665, long: 126.978, gdp: 420, population: 9776 },
-  { city: 'Berlin', lat: 52.52, long: 13.405, gdp: 250, population: 3645 },
-  { city: 'Mexico City', lat: 19.4326, long: -99.1332, gdp: 290, population: 21782 },
-  { city: 'Cairo', lat: 30.0444, long: 31.2357, gdp: 140, population: 20901 },
-  { city: 'Lagos', lat: 6.5244, long: 3.3792, gdp: 90, population: 15388 },
-  { city: 'Moscow', lat: 55.7558, long: 37.6173, gdp: 320, population: 12506 },
-  { city: 'Bangkok', lat: 13.7563, long: 100.5018, gdp: 210, population: 10539 },
-  { city: 'Jakarta', lat: -6.2088, long: 106.8456, gdp: 180, population: 10562 },
-  { city: 'Istanbul', lat: 41.0082, long: 28.9784, gdp: 230, population: 15462 }
+export const countryData = [
+  { country: 'United States', lat: 39.83, long: -98.58, gdp: 25460, population: 331900 },
+  { country: 'China', lat: 35.86, long: 104.20, gdp: 17960, population: 1425900 },
+  { country: 'Japan', lat: 36.20, long: 138.25, gdp: 4230, population: 125700 },
+  { country: 'Germany', lat: 51.17, long: 10.45, gdp: 4070, population: 83200 },
+  { country: 'United Kingdom', lat: 55.38, long: -3.44, gdp: 3070, population: 67800 },
+  { country: 'India', lat: 20.59, long: 78.96, gdp: 3390, population: 1428600 },
+  { country: 'France', lat: 46.23, long: 2.21, gdp: 2780, population: 67750 },
+  { country: 'Brazil', lat: -14.24, long: -51.93, gdp: 1920, population: 215300 },
+  { country: 'Canada', lat: 56.13, long: -106.35, gdp: 2140, population: 38930 },
+  { country: 'Italy', lat: 41.87, long: 12.57, gdp: 2010, population: 59110 },
+  { country: 'Australia', lat: -25.27, long: 133.78, gdp: 1680, population: 26440 },
+  { country: 'South Korea', lat: 35.91, long: 127.77, gdp: 1670, population: 51740 },
+  { country: 'Mexico', lat: 23.63, long: -102.55, gdp: 1320, population: 128900 },
+  { country: 'Indonesia', lat: -0.79, long: 113.92, gdp: 1320, population: 275500 },
+  { country: 'Turkey', lat: 38.96, long: 35.24, gdp: 910, population: 85280 },
+  { country: 'Saudi Arabia', lat: 23.89, long: 45.08, gdp: 1110, population: 36410 },
+  { country: 'Nigeria', lat: 9.08, long: 8.68, gdp: 477, population: 223800 },
+  { country: 'South Africa', lat: -30.56, long: 22.94, gdp: 405, population: 60410 },
+  { country: 'Egypt', lat: 26.82, long: 30.80, gdp: 477, population: 112720 },
+  { country: 'Argentina', lat: -38.42, long: -63.62, gdp: 632, population: 45810 },
 ];
 
 export const tableData = [
@@ -241,7 +241,7 @@ export const sampleDatasets: Record<string, Record<string, unknown>[]> = {
   calendar: calendarData,
   usMap: usMapData,
   areaMap: usMapData,
-  pointMap: cityData,
-  bubbleMap: cityData,
+  pointMap: countryData,
+  bubbleMap: countryData,
   table: tableData,
 };

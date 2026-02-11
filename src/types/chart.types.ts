@@ -628,8 +628,12 @@ export interface PointMapProps {
   pointSize?: number;
   valueFmt?: string;
   link?: string;
-  echartsOptions?: EChartsOption;
-  renderer?: ChartRenderer;
+  startingLat?: number;
+  startingLong?: number;
+  startingZoom?: number;
+  borderColor?: string;
+  borderWidth?: number;
+  tooltipType?: 'hover' | 'click';
   downloadableData?: boolean;
   downloadableImage?: boolean;
   backgroundColor?: string;

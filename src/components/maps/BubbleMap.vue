@@ -2,13 +2,12 @@
 /**
  * BubbleMap component
  * Map with sized bubble markers at lat/long coordinates
+ * Uses Leaflet with CartoDB tile basemap
  */
 
-import { computed, ref } from 'vue';
-import type { EChartsOption } from 'echarts';
+import { computed, watchEffect, ref } from 'vue';
 import type { BubbleMapProps } from '../../types';
-import EChartsBase from '../core/EChartsBase.vue';
-import ChartFooter from '../core/ChartFooter.vue';
+import LeafletBase from './LeafletBase.vue';
 import { useThemeStores } from '../../composables/useTheme';
 import { formatValue, getFormatObjectFromString } from '../../utils/formatting';
 
@@ -18,22 +17,19 @@ const props = withDefaults(defineProps<BubbleMapProps>(), {
   pointOpacity: 0.6,
   minSize: 5,
   maxSize: 40,
+  borderColor: '#fff',
+  borderWidth: 1,
+  tooltipType: 'hover',
   downloadableData: true,
-  downloadableImage: true
+  downloadableImage: false
 });
 
-const emit = defineEmits<{
-  (e: 'click', params: unknown): void;
-}>();
+const { resolveColor } = useThemeStores();
 
-const { activeAppearance, resolveColor } = useThemeStores();
-
-// Resolve colors
 const pointColorResolved = computed(() =>
   props.pointColor ? resolveColor(props.pointColor).value : '#3366cc'
 );
 
-// Get format objects
 const valueFormat = computed(() =>
   props.valueFmt ? getFormatObjectFromString(props.valueFmt) : undefined
 );
@@ -41,11 +37,9 @@ const sizeFormat = computed(() =>
   props.sizeFmt ? getFormatObjectFromString(props.sizeFmt) : undefined
 );
 
-// Calculate size range
+// Calculate size range for normalization
 const sizeRange = computed(() => {
-  if (!props.data?.length || !props.size) {
-    return { min: 0, max: 1 };
-  }
+  if (!props.data?.length || !props.size) return { min: 0, max: 1 };
 
   const sizes = props.data
     .map((d) => d[props.size!] as number)
@@ -61,152 +55,92 @@ const sizeRange = computed(() => {
 
 // Process bubble data
 const bubbleData = computed(() => {
-  if (!props.data?.length || !props.lat || !props.long || !props.size) {
-    return [];
-  }
+  if (!props.data?.length || !props.lat || !props.long || !props.size) return [];
 
   const { min: sizeMin, max: sizeMax } = sizeRange.value;
   const sizeSpan = sizeMax - sizeMin || 1;
 
-  return props.data.map((row) => {
-    const lat = row[props.lat] as number;
-    const lng = row[props.long] as number;
-    const size = row[props.size!] as number;
-    const value = props.value ? row[props.value] as number : undefined;
-    const name = props.name ? String(row[props.name]) : undefined;
+  return props.data
+    .map((row) => {
+      const lat = row[props.lat] as number;
+      const lng = row[props.long] as number;
+      const size = row[props.size!] as number;
+      const value = props.value ? (row[props.value] as number) : undefined;
+      const name = props.name ? String(row[props.name]) : undefined;
 
-    // Calculate symbol size
-    const normalized = (size - sizeMin) / sizeSpan;
-    const symbolSize = props.minSize! + normalized * (props.maxSize! - props.minSize!);
+      const normalized = (size - sizeMin) / sizeSpan;
+      const radius = props.minSize! + normalized * (props.maxSize! - props.minSize!);
 
-    return {
-      name,
-      value: [lng, lat, size, value],
-      symbolSize,
-      lat,
-      lng
-    };
-  }).filter((d) => d.lat != null && d.lng != null);
+      return { lat, lng, size, value, name, radius, row };
+    })
+    .filter((d) => d.lat != null && d.lng != null && !isNaN(d.lat) && !isNaN(d.lng));
 });
 
-// Calculate bounds for centering
-const mapBounds = computed(() => {
-  if (!bubbleData.value.length) {
-    return { center: [0, 0], zoom: 1 };
+function buildTooltip(item: typeof bubbleData.value[number]): string {
+  let html = '';
+  if (item.name) {
+    html += `<div class="tooltip-row"><span class="tooltip-label">${item.name}</span></div>`;
+  }
+  html += `<div class="tooltip-row"><span class="tooltip-label">Lat</span> <span>${item.lat.toFixed(4)}</span></div>`;
+  html += `<div class="tooltip-row"><span class="tooltip-label">Long</span> <span>${item.lng.toFixed(4)}</span></div>`;
+  html += `<div class="tooltip-row"><span class="tooltip-label">Size</span> <span>${formatValue(item.size, sizeFormat.value)}</span></div>`;
+  if (item.value != null) {
+    html += `<div class="tooltip-row"><span class="tooltip-label">Value</span> <span>${formatValue(item.value, valueFormat.value)}</span></div>`;
+  }
+  return html;
+}
+
+const leafletBase = ref<InstanceType<typeof LeafletBase>>();
+
+watchEffect(() => {
+  const base = leafletBase.value;
+  if (!base?.leaflet) return;
+
+  const { mapReady, clearMarkers, addCircleMarker, fitBoundsToMarkers } = base.leaflet;
+
+  if (!mapReady.value) return;
+
+  const data = bubbleData.value;
+  const color = pointColorResolved.value as string;
+  const opacity = props.pointOpacity;
+  const border = props.borderColor!;
+  const borderW = props.borderWidth!;
+  const ttType = props.tooltipType;
+
+  clearMarkers();
+
+  for (const item of data) {
+    addCircleMarker({
+      lat: item.lat,
+      lng: item.lng,
+      radius: item.radius,
+      fillColor: color,
+      fillOpacity: opacity,
+      color: border,
+      weight: borderW,
+      opacity: 1,
+      tooltipContent: buildTooltip(item),
+      tooltipType: ttType
+    });
   }
 
-  const lats = bubbleData.value.map((d) => d.lat);
-  const lngs = bubbleData.value.map((d) => d.lng);
-
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const minLng = Math.min(...lngs);
-  const maxLng = Math.max(...lngs);
-
-  const centerLat = (minLat + maxLat) / 2;
-  const centerLng = (minLng + maxLng) / 2;
-
-  // Calculate zoom based on extent
-  const latSpan = maxLat - minLat;
-  const lngSpan = maxLng - minLng;
-  const span = Math.max(latSpan, lngSpan);
-
-  let zoom = 1;
-  if (span < 1) zoom = 8;
-  else if (span < 5) zoom = 6;
-  else if (span < 20) zoom = 4;
-  else if (span < 50) zoom = 3;
-  else zoom = 2;
-
-  return { center: [centerLng, centerLat], zoom };
+  if (props.startingLat == null && props.startingLong == null) {
+    fitBoundsToMarkers(props.startingZoom);
+  }
 });
-
-// Build chart config
-const chartConfig = computed<EChartsOption>(() => {
-  return {
-    title: {
-      text: props.title,
-      subtext: props.subtitle
-    },
-    tooltip: {
-      trigger: 'item' as const,
-      formatter: (params: unknown) => {
-        const p = params as { data: { name?: string; value: [number, number, number, number?]; symbolSize: number } };
-        const { name, value } = p.data;
-        let output = '';
-        if (name) {
-          output += `<span style='font-weight: 600;'>${name}</span><br/>`;
-        }
-        output += `Lat: ${value[1].toFixed(4)}<br/>`;
-        output += `Long: ${value[0].toFixed(4)}<br/>`;
-        output += `Size: ${formatValue(value[2], sizeFormat.value)}`;
-        if (value[3] != null) {
-          output += `<br/>Value: ${formatValue(value[3], valueFormat.value)}`;
-        }
-        return output;
-      }
-    },
-    geo: {
-      map: 'world',
-      roam: true,
-      center: mapBounds.value.center,
-      zoom: mapBounds.value.zoom,
-      itemStyle: {
-        areaColor: '#e0e0e0',
-        borderColor: '#111'
-      },
-      emphasis: {
-        disabled: true
-      }
-    },
-    series: [
-      {
-        name: 'Bubbles',
-        type: 'scatter' as const,
-        coordinateSystem: 'geo' as const,
-        data: bubbleData.value,
-        itemStyle: {
-          color: pointColorResolved.value as string | undefined,
-          opacity: props.pointOpacity
-        },
-        emphasis: {
-          itemStyle: {
-            borderColor: '#333',
-            borderWidth: 1
-          }
-        }
-      }
-    ]
-  };
-});
-
-const hovering = ref(false);
 </script>
 
 <template>
-  <EChartsBase
-    :config="chartConfig"
+  <LeafletBase
+    ref="leafletBase"
+    :title="props.title"
+    :subtitle="props.subtitle"
     :height="props.height"
     :width="props.width"
-    :theme="activeAppearance"
-    :renderer="props.renderer"
-    :echarts-options="props.echartsOptions"
+    :basemap="props.basemap"
+    :starting-lat="props.startingLat"
+    :starting-long="props.startingLong"
+    :starting-zoom="props.startingZoom"
     :background-color="props.backgroundColor"
-    @click="emit('click', $event)"
-    @mouseenter="hovering = true"
-    @mouseleave="hovering = false"
-  >
-    <template #footer>
-      <ChartFooter
-        :config="chartConfig"
-        :data="props.data"
-        :chart-title="props.title"
-        :theme="activeAppearance"
-        :echarts-options="props.echartsOptions"
-        :downloadable-data="props.downloadableData"
-        :downloadable-image="props.downloadableImage"
-        :visible="hovering"
-      />
-    </template>
-  </EChartsBase>
+  />
 </template>

@@ -5,3 +5,4 @@ export * from './useExport';
 export * from './useTooltip';
 export * from './useChartConfig';
 export * from './useInteractiveFeatures';
+export * from './useLeafletMap';
