@@ -120,5 +120,9 @@ watchEffect(() => {
     :starting-long="props.startingLong"
     :starting-zoom="props.startingZoom"
     :background-color="props.backgroundColor"
+    :data="props.data"
+    :downloadable-data="props.downloadableData"
+    :downloadable-image="props.downloadableImage"
+    :chart-title="props.title"
   />
 </template>

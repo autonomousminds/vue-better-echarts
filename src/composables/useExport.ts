@@ -65,6 +65,13 @@ export interface ExportCsvOptions {
   separator?: string;
 }
 
+export interface ExportElementOptions {
+  /**
+   * Filename (without extension)
+   */
+  filename?: string;
+}
+
 export interface UseExportReturn {
   /**
    * Whether export is in progress
@@ -99,6 +106,11 @@ export interface UseExportReturn {
    * Export data as CSV
    */
   exportAsCsv: (data: DataRecord[], options?: ExportCsvOptions) => void;
+
+  /**
+   * Export an HTML element as a PNG screenshot (for non-ECharts content like Leaflet maps)
+   */
+  exportElementAsPng: (element: HTMLElement, options?: ExportElementOptions) => Promise<void>;
 
   /**
    * Copy chart to clipboard as image
@@ -394,6 +406,31 @@ export function useExport(): UseExportReturn {
   };
 
   /**
+   * Export an HTML element as a PNG screenshot (for non-ECharts content like Leaflet maps)
+   */
+  const exportElementAsPng = async (
+    element: HTMLElement,
+    options: ExportElementOptions = {}
+  ): Promise<void> => {
+    isExporting.value = true;
+
+    try {
+      const { toPng } = await import('html-to-image');
+      const dataUrl = await toPng(element, {
+        pixelRatio: 2,
+        cacheBust: true
+      });
+      const timestamp = getTimestamp();
+      const filename = options.filename || 'map';
+      download(dataUrl, `${filename}_${timestamp}.png`);
+    } catch (error) {
+      console.error('Failed to export element as PNG:', error);
+    } finally {
+      isExporting.value = false;
+    }
+  };
+
+  /**
    * Export data as CSV
    */
   const exportAsCsv = (
@@ -478,6 +515,7 @@ export function useExport(): UseExportReturn {
     exportAsPng,
     exportAsJpeg,
     exportAsCsv,
+    exportElementAsPng,
     copyToClipboard,
     getChartDataUrl
   };

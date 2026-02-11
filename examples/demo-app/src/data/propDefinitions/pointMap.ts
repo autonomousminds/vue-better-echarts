@@ -14,4 +14,5 @@ export const pointMapProps: PropDefinition[] = [
   { name: 'height', label: 'Height', control: 'text', defaultValue: '500px', group: 'Display' },
   { name: 'backgroundColor', label: 'Background Color', control: 'color', defaultValue: '', group: 'Display' },
   { name: 'downloadableData', label: 'Downloadable Data', control: 'checkbox', defaultValue: true, group: 'Export' },
+  { name: 'downloadableImage', label: 'Downloadable Image', control: 'checkbox', defaultValue: true, group: 'Export' },
 ];
