@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import type { BigValueProps } from '../../types';
 import { formatValue, getFormatObjectFromString, formatTitle } from '../../utils/formatting';
-import ChartHeader from '../core/ChartHeader.vue';
+import ChartContainer from '../core/ChartContainer.vue';
 import BigValueSparkline from './BigValueSparkline.vue';
 import DeltaCell from '../table/DeltaCell.vue';
 
@@ -72,15 +72,7 @@ const hasComparison = computed(() => !!props.comparison && normalizedData.value.
 </script>
 
 <template>
-  <div
-    class="big-value"
-    :style="{
-      minWidth: minWidth,
-      maxWidth: maxWidth,
-    }"
-  >
-    <ChartHeader :title="resolvedTitle" :subtitle="subtitle" />
-
+  <ChartContainer :title="resolvedTitle" :subtitle="subtitle">
     <div :class="['big-value-main', valueClass]">
       <a v-if="link" :href="link" class="big-value-link">
         {{ displayValue }}
@@ -123,20 +115,11 @@ const hasComparison = computed(() => !!props.comparison && normalizedData.value.
         <span class="big-value-comparison-label">{{ resolvedComparisonTitle }}</span>
       </template>
     </div>
-  </div>
+  </ChartContainer>
 </template>
 
 <style scoped>
-.big-value {
-  display: inline-block;
-  font-family: system-ui, -apple-system, sans-serif;
-  padding: 0.5rem 0 1rem 0;
-  margin-right: 1rem;
-  vertical-align: top;
-}
-
 .big-value-main {
-  position: relative;
   font-size: 2rem;
   font-weight: 600;
   margin-top: 0.25rem;
@@ -156,7 +139,6 @@ const hasComparison = computed(() => !!props.comparison && normalizedData.value.
 
 .big-value-comparison {
   font-size: 0.875rem;
-  font-family: system-ui, -apple-system, sans-serif;
   margin-top: 0.375rem;
 }
 

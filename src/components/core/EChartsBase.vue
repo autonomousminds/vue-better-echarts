@@ -4,14 +4,14 @@
  * Handles chart initialization, resize, and theme switching
  */
 
-import { ref, computed, watch, onMounted, onUnmounted, shallowRef } from 'vue';
+import { ref, watch, onMounted, onUnmounted, shallowRef } from 'vue';
 import type { EChartsOption, ECharts } from 'echarts';
 import * as echarts from 'echarts';
 import debounce from 'debounce';
 import type { Appearance, ChartRenderer } from '../../types';
 import { createEChartsTheme, themeVersion } from '../../themes/echartsThemes';
 import { applySeriesColors, applyEchartsOptions, applySeriesOptions } from '../../composables/useECharts';
-import ChartHeader from './ChartHeader.vue';
+import ChartContainer from './ChartContainer.vue';
 
 const ANIMATION_DURATION = 500;
 
@@ -57,11 +57,6 @@ const chartInstance = shallowRef<ECharts | null>(null);
 const hovering = ref(false);
 const isFirstRender = ref(true);
 
-const containerStyle = computed(() => ({
-  padding: '0.75rem',
-  borderRadius: '6px',
-  ...(props.backgroundColor ? { backgroundColor: props.backgroundColor } : {})
-}));
 
 // Check if we should use SVG (iOS large canvas workaround)
 function shouldUseSvg(container: HTMLElement): boolean {
@@ -270,13 +265,13 @@ defineExpose({
 </script>
 
 <template>
-  <div
-    class="echarts-base-container"
-    :style="containerStyle"
+  <ChartContainer
+    :title="props.title"
+    :subtitle="props.subtitle"
+    :backgroundColor="props.backgroundColor"
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
   >
-    <ChartHeader :title="props.title" :subtitle="props.subtitle" />
     <div
       ref="containerRef"
       class="echarts-base"
@@ -286,15 +281,10 @@ defineExpose({
       }"
     />
     <slot name="footer" :hovering="hovering" />
-  </div>
+  </ChartContainer>
 </template>
 
 <style scoped>
-.echarts-base-container {
-  margin-top: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
 .echarts-base {
   user-select: none;
   -webkit-user-select: none;
@@ -306,10 +296,6 @@ defineExpose({
   .echarts-base {
     break-inside: avoid;
     -moz-column-break-inside: avoid;
-  }
-
-  .echarts-base-container {
-    padding: 0 !important;
   }
 }
 </style>
