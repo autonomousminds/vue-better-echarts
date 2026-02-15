@@ -1,4 +1,4 @@
-# Vue ECharts Charts
+# Vue Better BI
 
 A Vue 3 charting library built on Apache ECharts and Leaflet.js with advanced formatting, theming, and export capabilities.
 
