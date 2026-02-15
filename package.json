@@ -1,6 +1,6 @@
 {
   "name": "@autonomousminds-public/vue-better-bi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Vue 3 charting library built on ECharts with advanced formatting and theming",
   "type": "module",
   "main": "./dist/vue-better-bi.umd.cjs",
