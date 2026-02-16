@@ -629,6 +629,7 @@ export function getSeriesConfig(
     y2?: string | string[];
     seriesOrder?: string[];
     seriesLabelFmt?: string;
+    fillMissingData?: boolean;
   } = {}
 ): SeriesConfig[] {
   const {
@@ -636,7 +637,8 @@ export function getSeriesConfig(
     size,
     tooltipTitle,
     y2,
-    seriesOrder
+    seriesOrder,
+    fillMissingData = false
   } = options;
 
   const seriesConfigs: SeriesConfig[] = [];
@@ -684,6 +686,27 @@ export function getSeriesConfig(
     });
   }
 
+  // Helper to build series data with all x-values filled (missing → 0)
+  // Used for stacked charts to prevent white gaps when a series is missing data for some x-values
+  function buildFilledSeriesData(allXValues: unknown[], rows: DataRecord[], yCol: string): unknown[][] {
+    const xMap = new Map<string, DataRecord>();
+    for (const d of rows) {
+      const xVal = xMismatch ? String(d[x]) : d[x];
+      xMap.set(String(xVal), d);
+    }
+    return allXValues.map((xVal) => {
+      const row = xMap.get(String(xVal));
+      const yVal = row ? (row[yCol] ?? 0) : 0;
+      const point = swapXY ? [yVal, xVal] : [xVal, yVal];
+      if (size) point.push(row ? row[size] : undefined);
+      if (tooltipTitle) point.push(row ? row[tooltipTitle] : undefined);
+      return point;
+    });
+  }
+
+  // Collect all distinct x-values (needed for fillMissingData)
+  const allXValues = fillMissingData ? getDistinctValues(data, x) : [];
+
   // Generate series config
   if (series && y2Array.length > 0) {
     // Series column WITH y2: group primary y by series, aggregate y2 separately
@@ -697,7 +720,9 @@ export function getSeriesConfig(
           name: yArray.length > 1
             ? `${String(seriesValue ?? 'null')} - ${columnSummary[yCol]?.title || yCol}`
             : String(seriesValue ?? 'null'),
-          data: buildSeriesData(filteredData, yCol),
+          data: fillMissingData
+            ? buildFilledSeriesData(allXValues, filteredData, yCol)
+            : buildSeriesData(filteredData, yCol),
           yAxisIndex: 0,
           ...baseConfig
         });
@@ -721,7 +746,9 @@ export function getSeriesConfig(
       const filteredData = data.filter((d) => d[series] === seriesValue);
       seriesConfigs.push({
         name: String(seriesValue ?? 'null'),
-        data: buildSeriesData(filteredData, yList[0][0]),
+        data: fillMissingData
+          ? buildFilledSeriesData(allXValues, filteredData, yList[0][0])
+          : buildSeriesData(filteredData, yList[0][0]),
         yAxisIndex: yList[0][1],
         ...baseConfig
       });

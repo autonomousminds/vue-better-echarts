@@ -135,7 +135,8 @@ const seriesData = computed(() => {
     columnSummary.value,
     {
       y2: props.y2,
-      seriesOrder: props.seriesOrder
+      seriesOrder: props.seriesOrder,
+      fillMissingData: props.type === 'stacked' || props.type === 'stacked100'
     }
   );
 

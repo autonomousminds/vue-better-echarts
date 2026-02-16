@@ -21,6 +21,15 @@ export const chartRegistry: ChartDefinition[] = [
     sampleDataKey: 'sales',
   },
   {
+    id: 'feature-usage', name: 'Feature Usage Over Time', componentName: 'BarChart',
+    category: 'Standard Charts',
+    description: 'Feature usage breakdown by type, stacked by day',
+    dataBindings: { x: 'date', y: 'usage_count', series: 'feature' },
+    supportsReferences: true,
+    props: barChartProps,
+    sampleDataKey: 'featureUsage',
+  },
+  {
     id: 'line-chart', name: 'Line Chart', componentName: 'LineChart',
     category: 'Standard Charts',
     description: 'Line charts with markers, step interpolation, missing value handling',
