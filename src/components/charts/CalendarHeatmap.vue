@@ -186,6 +186,7 @@ const hovering = ref(false);
   <EChartsBase
     :config="chartConfig"
     :title="props.title"
+    :title-icon="props.titleIcon"
     :subtitle="props.subtitle"
     :height="dynamicHeight"
     :width="props.width"

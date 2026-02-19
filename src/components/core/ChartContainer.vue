@@ -9,6 +9,7 @@ import ChartHeader from './ChartHeader.vue';
 
 withDefaults(defineProps<{
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   backgroundColor?: string;
 }>(), {});
@@ -19,7 +20,7 @@ withDefaults(defineProps<{
     class="chart-container"
     :style="backgroundColor ? { backgroundColor } : undefined"
   >
-    <ChartHeader :title="title" :subtitle="subtitle" />
+    <ChartHeader :title="title" :title-icon="titleIcon" :subtitle="subtitle" />
     <slot />
   </div>
 </template>

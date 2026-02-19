@@ -393,6 +393,7 @@ export interface FunnelChartProps {
   name?: string;
   value?: string;
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   legend?: boolean;
   height?: string;
@@ -420,6 +421,8 @@ export interface PieChartProps {
   value?: string;
   /** Chart title */
   title?: string;
+  /** Title icon URL */
+  titleIcon?: string;
   /** Chart subtitle */
   subtitle?: string;
   /** Show legend. Default: true */
@@ -494,6 +497,7 @@ export interface CalendarHeatmapProps {
   date: string;
   value: string;
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   legend?: boolean;
   height?: string;
@@ -515,6 +519,7 @@ export interface SankeyDiagramProps {
   target: string;
   value: string;
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   height?: string;
   width?: string;
@@ -574,6 +579,7 @@ export interface USMapProps {
   state: string;
   value: string;
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   legend?: boolean;
   height?: string;
@@ -597,6 +603,7 @@ export interface AreaMapProps {
   geoId?: string;
   value: string;
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   legend?: boolean;
   height?: string;
@@ -620,6 +627,7 @@ export interface PointMapProps {
   value?: string;
   name?: string;
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   height?: string;
   width?: string;

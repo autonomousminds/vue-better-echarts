@@ -10,6 +10,7 @@ import { useThemeStores } from '../../composables/useTheme';
 
 interface Props {
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
 }
 
@@ -23,7 +24,13 @@ const subtitleColor = computed(() => theme.value.colors['base-content-muted']);
 </script>
 
 <template>
-  <div v-if="title || subtitle" class="chart-header">
+  <div v-if="title || subtitle || titleIcon" class="chart-header">
+    <img
+      v-if="titleIcon"
+      :src="titleIcon"
+      class="chart-title-icon"
+      alt=""
+    />
     <h4
       v-if="title"
       class="chart-title"
@@ -43,6 +50,14 @@ const subtitleColor = computed(() => theme.value.colors['base-content-muted']);
 </template>
 
 <style scoped>
+.chart-title-icon {
+  width: 24px;
+  height: 24px;
+  opacity: 0.6;
+  margin: 0 0 6px 0;
+  display: block;
+}
+
 .chart-header {
   margin: 0 0 12px 0;
 }

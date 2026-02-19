@@ -13,6 +13,7 @@ import type { DataRecord } from '../../types';
 
 interface Props {
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   height?: string;
   width?: string;
@@ -79,6 +80,7 @@ const handleDownloadData = () => {
 <template>
   <ChartContainer
     :title="props.title"
+    :title-icon="props.titleIcon"
     :subtitle="props.subtitle"
     :background-color="props.backgroundColor"
     @mouseenter="hovering = true"

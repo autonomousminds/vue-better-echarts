@@ -153,6 +153,8 @@ export interface DataTableProps {
   rows?: number | 'all';
   /** Table title */
   title?: string;
+  /** Title icon URL displayed above the title */
+  titleIcon?: string;
   /** Table subtitle */
   subtitle?: string;
   /** Show row numbers */

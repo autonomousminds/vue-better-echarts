@@ -388,7 +388,7 @@ function handleFullscreenKeydown(e: KeyboardEvent) {
   >
     <!-- Empty state handling -->
     <template v-if="!hasData && emptySet !== 'pass'">
-      <ChartHeader :title="title" :subtitle="subtitle" />
+      <ChartHeader :title="title" :title-icon="titleIcon" :subtitle="subtitle" />
       <div
         class="empty-state"
         :class="{ 'empty-error': emptySet === 'error', 'empty-warn': emptySet === 'warn' }"
@@ -400,7 +400,7 @@ function handleFullscreenKeydown(e: KeyboardEvent) {
     <!-- Table content -->
     <template v-else-if="hasData">
       <!-- Title -->
-      <ChartHeader :title="title" :subtitle="subtitle" />
+      <ChartHeader :title="title" :title-icon="titleIcon" :subtitle="subtitle" />
 
       <!-- Search -->
       <SearchBar v-if="search" v-model="searchValue" />

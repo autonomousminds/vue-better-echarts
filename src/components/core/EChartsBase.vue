@@ -23,6 +23,7 @@ function registerThemes(): void {
 interface Props {
   config: EChartsOption;
   title?: string;
+  titleIcon?: string;
   subtitle?: string;
   height?: string;
   width?: string;
@@ -255,6 +256,7 @@ defineExpose({
 <template>
   <ChartContainer
     :title="props.title"
+    :title-icon="props.titleIcon"
     :subtitle="props.subtitle"
     :backgroundColor="props.backgroundColor"
     @mouseenter="hovering = true"

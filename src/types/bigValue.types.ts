@@ -60,6 +60,9 @@ export interface BigValueProps {
   /** Title text (defaults to formatted column name) */
   title?: string;
 
+  /** Title icon URL displayed above the title */
+  titleIcon?: string;
+
   /** Subtitle text displayed below the title */
   subtitle?: string;
 

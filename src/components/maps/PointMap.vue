@@ -112,6 +112,7 @@ watchEffect(() => {
   <LeafletBase
     ref="leafletBase"
     :title="props.title"
+    :title-icon="props.titleIcon"
     :subtitle="props.subtitle"
     :height="props.height"
     :width="props.width"

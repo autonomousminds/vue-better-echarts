@@ -175,6 +175,12 @@ watch([resolvedTitle, () => props.subtitle], () => nextTick(checkTruncation));
     class="big-value"
     :style="{ minWidth: minWidth, maxWidth: maxWidth }"
   >
+    <img
+      v-if="titleIcon"
+      :src="titleIcon"
+      class="big-value-title-icon"
+      alt=""
+    />
     <p
       v-if="resolvedTitle"
       ref="titleRef"
@@ -277,6 +283,14 @@ watch([resolvedTitle, () => props.subtitle], () => nextTick(checkTruncation));
   max-width: 100%;
   overflow-wrap: break-word;
   word-break: break-word;
+}
+
+.big-value-title-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+  margin: 0 0 4px 0;
+  display: block;
 }
 
 .big-value-title,
