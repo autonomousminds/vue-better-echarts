@@ -44,8 +44,8 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   formatColumnTitles: true,
   groupNamePosition: 'middle',
   showLinkCol: false,
-  emptySet: 'error',
-  emptyMessage: 'No records',
+  emptySet: 'info',
+  emptyMessage: 'No data found',
 });
 
 // Resolve effective rows count: "all" means show everything
@@ -391,7 +391,7 @@ function handleFullscreenKeydown(e: KeyboardEvent) {
       <ChartHeader :title="title" :title-icon="titleIcon" :subtitle="subtitle" />
       <div
         class="empty-state"
-        :class="{ 'empty-error': emptySet === 'error', 'empty-warn': emptySet === 'warn' }"
+        :class="{ 'empty-error': emptySet === 'error', 'empty-warn': emptySet === 'warn', 'empty-info': emptySet === 'info' }"
       >
         {{ emptyMessage }}
       </div>
@@ -674,6 +674,12 @@ table {
   background-color: rgba(234, 179, 8, 0.08);
   border: 1px solid rgba(234, 179, 8, 0.2);
   color: #a16207;
+}
+
+.empty-info {
+  background-color: rgba(107, 114, 128, 0.06);
+  border: 1px solid rgba(107, 114, 128, 0.15);
+  color: #6b7280;
 }
 
 .pagination-footer {

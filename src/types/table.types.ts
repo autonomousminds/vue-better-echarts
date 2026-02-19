@@ -144,7 +144,7 @@ export interface SortState {
 // DataTable Props
 // ============================================================================
 
-export type EmptySetBehavior = 'error' | 'warn' | 'pass';
+export type EmptySetBehavior = 'error' | 'warn' | 'info' | 'pass';
 
 export interface DataTableProps {
   /** Array of data objects to display */
@@ -181,7 +181,7 @@ export interface DataTableProps {
   link?: string;
   /** Show the link column in the table (default: false — hidden when link is set) */
   showLinkCol?: boolean;
-  /** Behavior when data is empty: "error" shows error, "warn" shows warning, "pass" renders nothing */
+  /** Behavior when data is empty: "info" shows neutral message, "error" shows error, "warn" shows warning, "pass" renders nothing */
   emptySet?: EmptySetBehavior;
   /** Custom message for empty data (default: "No records") */
   emptyMessage?: string;
