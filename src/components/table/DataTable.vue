@@ -13,6 +13,7 @@ import type {
   TableColumnConfig,
   SortState,
   ColumnSummaryItem,
+  TableServerQuery,
 } from '../../types/table.types';
 import type { TableContext } from '../../symbols/injectionKeys';
 import { tableContextKey } from '../../symbols/injectionKeys';
@@ -49,11 +50,31 @@ const props = withDefaults(defineProps<DataTableProps>(), {
   emptyMessage: 'No data found',
 });
 
+const emit = defineEmits<{
+  (e: 'server-query', query: TableServerQuery): void;
+}>();
+
 // Resolve effective rows count: "all" or 0 means show everything
 const effectiveRows = computed(() => {
   if (props.rows === 'all' || props.rows === 0) return Infinity;
   return props.rows;
 });
+
+// ─── Server mode ───────────────────────────────────────────────────────
+// In server mode `data` is one page of a larger dataset: local search/sort
+// are bypassed and page/sort/search changes are emitted for the parent to
+// resolve against the server.
+const isServerMode = computed(() => props.serverMode === true && !props.groupBy);
+
+function emitServerQuery() {
+  emit('server-query', {
+    page: currentPage.value,
+    rows: effectiveRows.value === Infinity ? 100 : effectiveRows.value,
+    sortCol: sortState.value.col,
+    sortAsc: sortState.value.ascending,
+    search: debouncedSearchValue.value,
+  });
+}
 
 const slots = useSlots();
 
@@ -200,6 +221,8 @@ watch(searchValue, (val) => {
 });
 
 const searchFilteredData = computed(() => {
+  // Server mode: the server already applied the search filter to this page
+  if (isServerMode.value) return processedData.value;
   if (!debouncedSearchValue.value || !props.search) return processedData.value;
 
   const query = debouncedSearchValue.value.toLowerCase();
@@ -271,8 +294,18 @@ function comparator(a: Record<string, unknown>, b: Record<string, unknown>): num
 }
 
 const sortedData = computed(() => {
+  // Server mode: the server already applied the sort to this page
+  if (isServerMode.value) return searchFilteredData.value;
   if (!sortState.value.col) return searchFilteredData.value;
   return [...searchFilteredData.value].sort(comparator);
+});
+
+// Server mode: sort and search changes restart from page 1 and are resolved
+// by the parent against the full dataset.
+watch([sortState, debouncedSearchValue], () => {
+  if (!isServerMode.value) return;
+  currentPage.value = 1;
+  emitServerQuery();
 });
 
 // ─── Grouping ──────────────────────────────────────────────────────────
@@ -394,11 +427,14 @@ const sortedGroupNames = computed(() => {
 });
 
 // ─── Pagination ────────────────────────────────────────────────────────
-const isPaginated = computed(() => sortedData.value.length > effectiveRows.value && !props.groupBy);
+const totalRowCount = computed(() =>
+  isServerMode.value ? (props.serverTotalRows ?? sortedData.value.length) : sortedData.value.length
+);
+const isPaginated = computed(() => totalRowCount.value > effectiveRows.value && !props.groupBy);
 const currentPage = ref(1);
 
 const pageCount = computed(() =>
-  isPaginated.value ? Math.ceil(sortedData.value.length / effectiveRows.value) : 1
+  isPaginated.value ? Math.ceil(totalRowCount.value / effectiveRows.value) : 1
 );
 
 // Reset page when data/search changes
@@ -409,20 +445,30 @@ watch([sortedData, effectiveRows], () => {
 });
 
 const displayedData = computed(() => {
+  // Server mode: `data` holds the current page (or, before the first server
+  // fetch, the initial inline window) — render at most one page of it.
+  if (isServerMode.value) return sortedData.value.slice(0, effectiveRows.value);
   if (!isPaginated.value) return sortedData.value;
   const start = (currentPage.value - 1) * effectiveRows.value;
   return sortedData.value.slice(start, start + effectiveRows.value);
 });
 
 function goToPage(page: number) {
-  currentPage.value = Math.max(1, Math.min(page, pageCount.value));
+  const target = Math.max(1, Math.min(page, pageCount.value));
+  if (target === currentPage.value) return;
+  currentPage.value = target;
+  if (isServerMode.value) emitServerQuery();
 }
 
 // ─── Data for export ───────────────────────────────────────────────────
 const exportColumns = computed(() => effectiveColumns.value.map((d) => d.id));
 
 // ─── Has data check ─────────────────────────────────────────────────────
-const hasData = computed(() => !!props.data && props.data.length > 0);
+// Server mode with an active search keeps the table (and search bar) rendered
+// even when the server returned zero matching rows, so the search can be cleared.
+const hasData = computed(
+  () => (!!props.data && props.data.length > 0) || (isServerMode.value && !!debouncedSearchValue.value)
+);
 
 // ─── Hover state (for footer visibility) ───────────────────────────────
 const hovering = ref(false);
@@ -448,11 +494,14 @@ const fullscreenRows = computed(() => {
 
 // Fullscreen pagination
 const fullscreenPage = ref(1);
-const fullscreenIsPaginated = computed(() => sortedData.value.length > fullscreenRows.value);
+// Server mode: fullscreen shows only the currently loaded page (no server round-trips)
+const fullscreenIsPaginated = computed(() => !isServerMode.value && sortedData.value.length > fullscreenRows.value);
 const fullscreenPageCount = computed(() =>
   fullscreenIsPaginated.value ? Math.ceil(sortedData.value.length / fullscreenRows.value) : 1
 );
 const fullscreenDisplayedData = computed(() => {
+  // Server mode: only the loaded page is available — don't render the whole window
+  if (isServerMode.value) return sortedData.value.slice(0, fullscreenRows.value);
   if (!fullscreenIsPaginated.value) return sortedData.value;
   const start = (fullscreenPage.value - 1) * fullscreenRows.value;
   return sortedData.value.slice(start, start + fullscreenRows.value);
@@ -505,10 +554,23 @@ function handleFullscreenKeydown(e: KeyboardEvent) {
 }
 
 // ─── Export ─────────────────────────────────────────────────────────────
+// Server mode holds only one page locally; exportDataProvider fetches the
+// full dataset from the parent. Falls back to loaded rows if it fails.
+async function resolveExportData(fallback: Record<string, unknown>[]): Promise<Record<string, unknown>[]> {
+  if (!props.exportDataProvider) return fallback;
+  try {
+    const full = await props.exportDataProvider();
+    if (full && full.length > 0) return full;
+  } catch (err) {
+    console.error('exportDataProvider failed, exporting loaded rows only', err);
+  }
+  return fallback;
+}
+
 async function handleExportExcel() {
   const { exportToXlsx } = await import('../../utils/excelExport');
   await exportToXlsx({
-    data: sortedData.value,
+    data: await resolveExportData(sortedData.value),
     columns: orderedColumns.value,
     columnSummary: columnSummary.value,
     groupBy: props.groupBy,
@@ -521,8 +583,8 @@ async function handleExportExcel() {
   });
 }
 
-function handleExportCsv() {
-  exportToCsv(props.data, exportColumns.value, props.title || 'table-data');
+async function handleExportCsv() {
+  exportToCsv(await resolveExportData(props.data), exportColumns.value, props.title || 'table-data');
 }
 </script>
 
@@ -701,7 +763,7 @@ function handleExportCsv() {
       <Pagination
         :current-page="currentPage"
         :page-count="pageCount"
-        :total-rows="sortedData.length"
+        :total-rows="totalRowCount"
         :displayed-count="displayedData.length"
         @go-to-page="goToPage"
       />

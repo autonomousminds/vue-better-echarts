@@ -148,6 +148,15 @@ export interface SortState {
 
 export type EmptySetBehavior = 'error' | 'warn' | 'info' | 'pass';
 
+/** Query state emitted by DataTable's `server-query` event in server mode */
+export interface TableServerQuery {
+  page: number;
+  rows: number;
+  sortCol: string | null;
+  sortAsc: boolean;
+  search: string;
+}
+
 export interface DataTableProps {
   /** Array of data objects to display */
   data: Record<string, unknown>[];
@@ -189,6 +198,15 @@ export interface DataTableProps {
   emptyMessage?: string;
   /** Table-level subtotal format, used as fallback when Column doesn't set subtotalFmt */
   subtotalFmt?: string;
+
+  // Server-driven pagination
+  /** When true, `data` is one page of a larger server-side dataset: pagination,
+   * search and sort are delegated to the parent via the `server-query` event */
+  serverMode?: boolean;
+  /** Total row count on the server (drives page count in server mode) */
+  serverTotalRows?: number;
+  /** Resolves the full dataset for CSV/Excel export when only a page is loaded */
+  exportDataProvider?: () => Promise<Record<string, unknown>[]>;
 
   // Styling
   /** Alternate row shading */
