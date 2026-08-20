@@ -98,6 +98,21 @@ function toExcelSafeDate(val: unknown): unknown {
 }
 
 /**
+ * Excel worksheet names: no * ? : \ / [ ], max 31 chars, no leading/trailing
+ * apostrophe, non-empty — ExcelJS throws otherwise.
+ */
+function sanitizeSheetName(name: string): string {
+  const cleaned = name
+    .replace(/[*?:\\/[\]]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 31)
+    .replace(/^'+|'+$/g, '')
+    .trim();
+  return cleaned || 'Data';
+}
+
+/**
  * Exports data to an Excel (.xlsx) file and triggers download.
  */
 export async function exportToXlsx(options: ExcelExportOptions): Promise<void> {
@@ -119,7 +134,7 @@ export async function exportToXlsx(options: ExcelExportOptions): Promise<void> {
   // Dynamic import of ExcelJS
   const ExcelJS = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet(title || 'Data');
+  const worksheet = workbook.addWorksheet(sanitizeSheetName(title || 'Data'));
 
   // --- Header row ---
   const headerFill: import('exceljs').Fill = {
@@ -260,7 +275,7 @@ export async function exportToXlsx(options: ExcelExportOptions): Promise<void> {
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${filename}.xlsx`;
+  link.download = `${filename.replace(/[*?:\\/[\]]/g, ' ').replace(/\s+/g, ' ').trim() || 'table-data'}.xlsx`;
   link.style.display = 'none';
   document.body.appendChild(link);
   link.click();
