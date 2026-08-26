@@ -30,6 +30,14 @@ export function getCompletedData(
   const allX = [...new Set(filtered.map(row => row[x]))];
   const allSeries = [...new Set(filtered.map(row => row[series]))];
 
+  // First-seen x order interleaves date ranges when rows arrive grouped by
+  // series (ORDER BY series, day) — keep numeric/date x chronological.
+  if (allX.every(v => typeof v === 'number')) {
+    (allX as number[]).sort((a, b) => a - b);
+  } else if (allX.every(v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v))) {
+    (allX as string[]).sort();
+  }
+
   // Build a lookup map: key = `${xVal}|||${seriesVal}`
   const existing = new Map<string, Record<string, any>>();
   for (const row of filtered) {
