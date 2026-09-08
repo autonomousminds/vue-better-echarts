@@ -110,11 +110,21 @@ const stepMap = {
   end: 'end'
 } as const;
 
+// Above this many rows a series is drawn through ECharts' LTTB sampling
+// (one point per pixel column, shape-preserving) with no per-point symbols
+// or entry animation. Hover hit-testing then touches thousands of points,
+// not the full dataset; the data itself stays complete for tooltips/export.
+const LARGE_SERIES_ROWS = 5000;
+const isLargeSeries = computed(() => (props.data?.length ?? 0) > LARGE_SERIES_ROWS);
+
 // Build line series configuration
 const lineSeriesConfig = computed<Partial<SeriesConfig>>(() => {
+  const large = isLargeSeries.value;
   return {
     type: 'line',
     smooth: false,
+    sampling: large ? 'lttb' : undefined,
+    animation: large ? false : undefined,
     step: props.step ? stepMap[props.stepPosition || 'middle'] : false,
     connectNulls: props.handleMissing === 'connect',
     lineStyle: {
@@ -129,7 +139,7 @@ const lineSeriesConfig = computed<Partial<SeriesConfig>>(() => {
     },
     // Symbol anchor: showSymbol must be true for labels to have anchor points.
     // When labels=true but markers=false, use symbolSize:0 for invisible anchors.
-    showSymbol: props.labels || props.markers,
+    showSymbol: large ? !!props.markers : (props.labels || props.markers),
     symbol: props.markers ? props.markerShape : 'circle',
     symbolSize: props.markers ? props.markerSize : (props.labels ? 0 : undefined),
     label: props.labels ? {

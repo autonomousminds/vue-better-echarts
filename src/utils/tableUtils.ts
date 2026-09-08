@@ -86,9 +86,10 @@ export function aggregateColumn(
     case 'sum':
       return columnValues.reduce<number>((sum, val) => sum + Number(val), 0);
     case 'min':
-      return Math.min(...columnValues.map(Number));
+      // No spread: a 6-figure row count overflows the call stack.
+      return columnValues.reduce<number>((m, val) => Math.min(m, Number(val)), Infinity);
     case 'max':
-      return Math.max(...columnValues.map(Number));
+      return columnValues.reduce<number>((m, val) => Math.max(m, Number(val)), -Infinity);
     case 'mean':
       return columnValues.length
         ? columnValues.reduce<number>((sum, val) => sum + Number(val), 0) / columnValues.length

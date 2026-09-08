@@ -153,13 +153,14 @@ export function getColumnSummary(data: DataRecord[]): Record<string, ColumnSumma
       const min = sorted[0];
       const max = sorted[sorted.length - 1];
       const median = sorted[Math.floor(sorted.length / 2)];
-      const maxDecimals = Math.max(
-        ...numValues.map((v) => {
-          const str = v.toString();
-          const decimalIndex = str.indexOf('.');
-          return decimalIndex >= 0 ? str.length - decimalIndex - 1 : 0;
-        })
-      );
+      // Loop, not Math.max(...spread): a 6-figure point count overflows the call stack.
+      let maxDecimals = 0;
+      for (const v of numValues) {
+        const str = v.toString();
+        const decimalIndex = str.indexOf('.');
+        const decimals = decimalIndex >= 0 ? str.length - decimalIndex - 1 : 0;
+        if (decimals > maxDecimals) maxDecimals = decimals;
+      }
 
       columnUnitSummary = { min, max, median, maxDecimals, unitType: 'number' };
     } else if (typeof sampleValue === 'boolean') {
