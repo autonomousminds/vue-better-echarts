@@ -29,6 +29,7 @@ import TableFooter from './TableFooter.vue';
 import FullscreenButton from './FullscreenButton.vue';
 import ChartHeader from '../core/ChartHeader.vue';
 import { exportToCsv } from '../../utils/tableUtils';
+import { toExportFilename } from '../../utils/exportFilename';
 
 const props = withDefaults(defineProps<DataTableProps>(), {
   rows: 10,
@@ -579,12 +580,12 @@ async function handleExportExcel() {
     subtotals: props.subtotals,
     totalRow: props.totalRow,
     title: props.title,
-    filename: props.title || 'table-data',
+    filename: toExportFilename(props.exportName || props.title, 'table_data'),
   });
 }
 
 async function handleExportCsv() {
-  exportToCsv(await resolveExportData(props.data), exportColumns.value, props.title || 'table-data');
+  exportToCsv(await resolveExportData(props.data), exportColumns.value, toExportFilename(props.exportName || props.title, 'table_data'));
 }
 </script>
 

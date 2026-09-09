@@ -8,6 +8,7 @@
 import type { EChartsOption } from 'echarts';
 import type { DataRecord } from '../../types';
 import { useExport } from '../../composables/useExport';
+import { toExportFilename } from '../../utils/exportFilename';
 
 interface Props {
   config: EChartsOption;
@@ -34,7 +35,7 @@ const handleSaveImage = async () => {
   await exportAsPng(
     props.config,
     {
-      filename: props.chartTitle || props.queryId || 'chart',
+      filename: toExportFilename(props.chartTitle, props.queryId || 'chart'),
       pixelRatio: 3,
       width: 666
     },
@@ -47,7 +48,7 @@ const handleSaveImage = async () => {
 const handleDownloadData = () => {
   if (props.data) {
     exportAsCsv(props.data, {
-      filename: props.queryId || 'data'
+      filename: toExportFilename(props.chartTitle, props.queryId || 'data')
     });
   }
 };

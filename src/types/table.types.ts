@@ -164,6 +164,8 @@ export interface DataTableProps {
   rows?: number | 'all';
   /** Table title */
   title?: string;
+  /** Name for downloaded files when the host renders its own header; defaults to title */
+  exportName?: string;
   /** Title icon URL displayed above the title */
   titleIcon?: string;
   /** Table subtitle */

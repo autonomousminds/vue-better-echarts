@@ -9,6 +9,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import ChartContainer from '../core/ChartContainer.vue';
 import { useLeafletMap, type LeafletMapOptions } from '../../composables/useLeafletMap';
 import { useExport } from '../../composables/useExport';
+import { toExportFilename } from '../../utils/exportFilename';
 import type { DataRecord } from '../../types';
 
 interface Props {
@@ -64,14 +65,14 @@ onBeforeUnmount(() => {
 const handleSaveImage = async () => {
   if (!mapContainer.value) return;
   await exportElementAsPng(mapContainer.value, {
-    filename: props.chartTitle || props.title || 'map'
+    filename: toExportFilename(props.chartTitle || props.title, 'map')
   });
 };
 
 const handleDownloadData = () => {
   if (props.data) {
     exportAsCsv(props.data, {
-      filename: props.chartTitle || props.title || 'map-data'
+      filename: toExportFilename(props.chartTitle || props.title, 'map_data')
     });
   }
 };

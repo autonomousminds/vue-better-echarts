@@ -344,6 +344,7 @@ This kicks in only past the wrap — series 1–10 keep whatever `lineType` /
 | `series` | `string` | Column to split into series |
 | `title` | `string` | Chart title |
 | `titleIcon` | `string` | Image URL to display before the title |
+| `exportName` | `string` | Name for downloaded files when you render your own header; defaults to `title` |
 | `subtitle` | `string` | Chart subtitle |
 | `height` | `string` | Chart height (default: '291px') |
 | `width` | `string` | Chart width (default: '100%') |
